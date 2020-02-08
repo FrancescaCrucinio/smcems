@@ -1,1 +1,1 @@
-# smcems
+This repository provides MATLAB code to reproduce the examples of "Sequential Monte Carlo for Fredholm Integral Equations of the First Kind" by Francesca R. Crucinio, Arnaud Doucet and Adam M. Johansen.
