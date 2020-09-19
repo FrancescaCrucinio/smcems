@@ -1,4 +1,4 @@
-# SMCEMS
+# SMC-EMS
 
 A particle method for Fredholm Equations of the First Kind
 
