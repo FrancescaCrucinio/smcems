@@ -1,3 +1,3 @@
 # Positron Emission Tomography
 
-To reproduce the example run `code`pet.m.
+To reproduce the example run `pet.m`.
