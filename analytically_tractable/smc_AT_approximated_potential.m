@@ -1,0 +1,55 @@
+% SMC for analytically tractable example (approximated potential)
+% OUTPUTS
+% 1 - particle locations
+% 2 - particle weights
+% INPUTS
+% 'N' number of particles
+% 'Niter' number of time steps
+% 'epsilon' standard deviation for Gaussian smoothing kernel
+% 'x0' user selected initial distribution
+% 'M' number of samples from h(y) to be drawn at each iteration
+
+function[x, W] = smc_AT_approximated_potential(N, Niter, epsilon, ...
+    x0, M)
+    % initialise a matrix x storing the particles
+    x = zeros(Niter,N);
+    % initialise a matrix W storing the weights
+    W = zeros(Niter,N);
+    % initial distribution is given as input:
+    x(1, :) = x0;
+    % uniform weights at time n = 1
+    W(1, :) = ones(1, N)/N;
+
+    for n=2:Niter
+        % get samples from h(y)
+        y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(M, 1);
+        % ESS
+        ESS=1/sum(W(n-1,:).^2);
+        %%%%%% RESAMPLING
+        if(ESS < N/2)
+            x(n,:) = x(n-1,mult_resample(W(n-1,:), N));
+            W(n,:) = 1/N;
+        else
+            x(n,:) = x(n-1,:);	    
+            W(n,:) = W(n-1,:);
+        end
+        
+        % Compute h^N_{n}
+        hN = zeros(M,1);
+        for j=1:M
+            hN(j) = sum(W(n, :) .* normpdf(y(j), x(n, :), 0.045));
+        end
+        % Markov kernel: Random walk step
+        x(n, :) = x(n, :) + epsilon*randn(1, N);
+
+        % update weights
+        for i=1:N
+            g = normpdf(y, x(n, i), 0.045);
+            potential = sum(g ./ hN);
+            % update weight
+            W(n, i) = potential;
+        end
+        % normalise weights
+        W(n, :) = W(n, :) ./ sum(W(n, :));
+    end
+end
