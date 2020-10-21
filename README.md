@@ -11,3 +11,5 @@ The folder `motion_deblurring` contains the scripts to reproduce the example in 
 The folder `pet` contains the scripts to reproduce the example in Section 4.3 and Appendix F.
 
 The folder `analytically_tractable` contains the scripts to reproduce the example in Appendix E.1.
+
+The 2-dimensional examples require the function pinky.m which can be downloaded [here](https://uk.mathworks.com/matlabcentral/fileexchange/35797-generate-random-numbers-from-a-2d-discrete-distribution).
