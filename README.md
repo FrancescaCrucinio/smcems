@@ -12,4 +12,4 @@ The folder `pet` contains the scripts to reproduce the example in Section 4.3 an
 
 The folder `analytically_tractable` contains the scripts to reproduce the example in Appendix E.1.
 
-The 2-dimensional examples require the function pinky.m which can be downloaded [here](https://uk.mathworks.com/matlabcentral/fileexchange/35797-generate-random-numbers-from-a-2d-discrete-distribution).
+The 2-dimensional examples require the function `pinky.m` which can be downloaded [here](https://uk.mathworks.com/matlabcentral/fileexchange/35797-generate-random-numbers-from-a-2d-discrete-distribution).
