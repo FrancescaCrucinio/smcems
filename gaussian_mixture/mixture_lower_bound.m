@@ -19,7 +19,7 @@ Nparticles = [100, 500, 1000];
 epsilon = 1e-03;
 
 % lower bound 
-a = linspace(0.2, 100, 10);
+a = linspace(0.2, 10, 10);
 % number of replications
 Nrep = 100;
 % mise
