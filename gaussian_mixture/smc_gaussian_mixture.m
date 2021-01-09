@@ -8,7 +8,7 @@
 % 'epsilon' standard deviation for Gaussian smoothing kernel
 % 'x0' (optional) user selected initial distribution.
 % Default = Uniform on [0, 1]
-% 'y' (optional) sample from h
+% 'hSample' (optional) sample from h
 
 function[x, W] = smc_gaussian_mixture(N, Niter, epsilon, varargin)
     % initialise a matrix x storing the particles at each time step
@@ -23,9 +23,9 @@ function[x, W] = smc_gaussian_mixture(N, Niter, epsilon, varargin)
         x(1, :) = rand(1, N);
     end
     if(nargin==5)
-        y = varargin{2};
+        hSample = varargin{2};
     else
-        y = Ysample_gaussian_mixture(N);
+        hSample = Ysample_gaussian_mixture(N);
     end
     % uniform weights at time n = 1
     W(1, :) = ones(1, N)/N;
@@ -46,6 +46,7 @@ function[x, W] = smc_gaussian_mixture(N, Niter, epsilon, varargin)
         x(n,:) = x(n,:) + epsilon*randn(1, N);
         
         % Compute h^N_{n}
+        y = randsample(hSample, N, true);
         hN = zeros(length(y),1);
         for j=1:length(y)
             hN(j) = sum(W(n,:) .* normpdf(y(j),x(n,:),0.045));
