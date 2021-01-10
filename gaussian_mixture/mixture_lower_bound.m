@@ -24,35 +24,52 @@ a = linspace(0.2, 1, 10);
 % number of replications
 Nrep = 100;
 % mise
-SMCmise = zeros(length(Nparticles), length(a));
-
-parfor index=1:length(a)
-    SMCmiseN = zeros(length(Nparticles), 1);
-    for N=1:length(Nparticles)
-        SMCmiseRep = zeros(Nrep, 1);
-        for k=1:Nrep
+SMCmiset = zeros(length(Nparticles), length(a));
+SMCmise = zeros(length(Nparticles));
+parfor N=1:length(Nparticles)
+    SMCmiseRept = zeros(Nrep, length(a));
+    SMCmiseRep = zeros(Nrep, 1);
+    for k=1:Nrep
+        for index=1:length(a)      
             % initial distribution
             f0SMC = 0.4-a(index)+2*a(index)*rand(Nparticles(N), 1);
             % sample from truncated h
             hSample = Ysample_gaussian_mixture_trunc(10^5, a(index));
-            % SMC
+            % SMC - truncated
             [x, W] = smc_gaussian_mixture_trunc(Nparticles(N), Niter, epsilon, a(index), f0SMC, hSample);
             % KDE
             % bandwidth
             bw = sqrt(epsilon^2 + optimal_bandwidthESS(x(Niter, :), W(Niter, :))^2);
             KDEy = ksdensity(x(Niter, :), KDEx, 'weight', W(Niter, :), ...
                 'Bandwidth', bw, 'Function', 'pdf');
-            SMCmiseRep(k) = var(f(KDEx) - KDEy, 1);
+            SMCmiseRept(k, index) = var(f(KDEx) - KDEy, 1);
         end
-        SMCmiseN(N) = mean(SMCmiseRep);
+        % initial distribution
+        f0SMC = rand(Nparticles(N), 1);
+        % sample from  h
+        hSample = Ysample_gaussian_mixture(10^5);
+        % SMC - truncated
+        [x, W] = smc_gaussian_mixture(Nparticles(N), Niter, epsilon, f0SMC, hSample);
+        % KDE
+        % bandwidth
+        bw = sqrt(epsilon^2 + optimal_bandwidthESS(x(Niter, :), W(Niter, :))^2);
+        KDEy = ksdensity(x(Niter, :), KDEx, 'weight', W(Niter, :), ...
+            'Bandwidth', bw, 'Function', 'pdf');
+        SMCmiseRep(k) = var(f(KDEx) - KDEy, 1);
     end
-    SMCmise(:, index) = SMCmiseN;
+    SMCmiset(N, :) = mean(SMCmiseRept, 1);
+    SMCmise(N) = mean(SMCmiseRep);
 end
 close all;
-plot(a, SMCmise, 'LineWidth', 4)
+p = semilogy(a, SMCmiset, '-.', 'LineWidth', 4);
+colors = get(p, 'Color');
+hold on
+for i=1:length(Nparticles)
+    yline(SMCmise(i),  'LineWidth', 4, 'color', colors{i})
+end
 legend(['N = ' num2str(Nparticles(1))], ['N = ' num2str(Nparticles(2))], ...
     ['N = ' num2str(Nparticles(3))],...
     'interpreter', 'latex', 'FontSize', ...
     10, 'Location', 'best');
 pbaspect([1.5 1 1])
-printEps(gcf, 'mixture_lower_bound.eps')
+% printEps(gcf, 'mixture_lower_bound.eps')
