@@ -17,15 +17,17 @@ Niter = 100;
 Nparticles = [100, 500, 1000];
 % scale for SMC smoothing
 epsilon = 1e-03;
-
+% bin centres
+KDEx = linspace(0, 1, 100);
 % lower bound 
-a = linspace(0.2, 10, 10);
+a = linspace(0.2, 1, 10);
 % number of replications
 Nrep = 100;
 % mise
 SMCmise = zeros(length(Nparticles), length(a));
 
-for index=1:length(a)
+parfor index=1:length(a)
+    SMCmiseN = zeros(length(Nparticles), 1);
     for N=1:length(Nparticles)
         SMCmiseRep = zeros(Nrep, 1);
         for k=1:Nrep
@@ -38,17 +40,19 @@ for index=1:length(a)
             % KDE
             % bandwidth
             bw = sqrt(epsilon^2 + optimal_bandwidthESS(x(Niter, :), W(Niter, :))^2);
-            [KDEy, KDEx] = ksdensity(x(Niter, :), 'weight', W(Niter, :), ...
+            KDEy = ksdensity(x(Niter, :), KDEx, 'weight', W(Niter, :), ...
                 'Bandwidth', bw, 'Function', 'pdf');
             SMCmiseRep(k) = var(f(KDEx) - KDEy, 1);
         end
-        SMCmise(N, index) = mean(SMCmiseRep);
+        SMCmiseN(N) = mean(SMCmiseRep);
     end
+    SMCmise(:, index) = SMCmiseN;
 end
 close all;
-semilogy(a, SMCmise, 'LineWidth', 4)
+plot(a, SMCmise, 'LineWidth', 4)
 legend(['N = ' num2str(Nparticles(1))], ['N = ' num2str(Nparticles(2))], ...
     ['N = ' num2str(Nparticles(3))],...
     'interpreter', 'latex', 'FontSize', ...
-    10, 'Location', 'southwest');
+    10, 'Location', 'best');
 pbaspect([1.5 1 1])
+printEps(gcf, 'mixture_lower_bound.eps')
