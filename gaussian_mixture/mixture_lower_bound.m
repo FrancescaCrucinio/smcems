@@ -61,15 +61,17 @@ parfor N=1:length(Nparticles)
     SMCmise(N) = mean(SMCmiseRep);
 end
 close all;
-p = semilogy(a, SMCmiset, '-.', 'LineWidth', 4);
-colors = get(p, 'Color');
+plot(a, SMCmiset(1, :), '-.k', 'LineWidth', 4);
 hold on
+yline(SMCmise(1),  'LineWidth', 4, 'color', 'black')
+p = plot(a, SMCmiset, '-.', 'LineWidth', 4);
+colors = get(p, 'Color');
 for i=1:length(Nparticles)
     yline(SMCmise(i),  'LineWidth', 4, 'color', colors{i})
 end
-legend(['N = ' num2str(Nparticles(1))], ['N = ' num2str(Nparticles(2))], ...
+legend('with LB', 'no LB', ['N = ' num2str(Nparticles(1))], ['N = ' num2str(Nparticles(2))], ...
     ['N = ' num2str(Nparticles(3))],...
     'interpreter', 'latex', 'FontSize', ...
-    10, 'Location', 'best');
+    10, 'Location', 'eastoutside');
 pbaspect([1.5 1 1])
 % printEps(gcf, 'mixture_lower_bound.eps')

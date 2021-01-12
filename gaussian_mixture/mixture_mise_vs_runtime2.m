@@ -35,7 +35,7 @@ SMCstats = zeros(Nrep, length(N));
 DKDEpistats = zeros(Nrep, length(N));
 DKDEcvstats = zeros(Nrep, length(N));
 
-for index=1:length(N)
+parfor index=1:length(N)
     for k=1:Nrep
         % sample from h
         y = Ysample_gaussian_mixture(N(index));
