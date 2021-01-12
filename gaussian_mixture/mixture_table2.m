@@ -47,7 +47,7 @@ for i=1:Nbins
 end
 
 % number of repetitions
-Nrep = 100;
+Nrep = 1000;
 % percentile of MSE to compare smoothness
 q = 0.95;
 % diagnostics
@@ -209,4 +209,4 @@ resTable(:, 6) = log(resTable(:, 6));
 % write table
 dlmwrite('EM_EMS_IB_SMC_Table',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('mixture_table_12Jan2021.mat')
+save('mixture_table_13Jan2021.mat')
