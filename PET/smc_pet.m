@@ -2,67 +2,91 @@
 % OUTPUTS
 % 1/2 - particle locations
 % 3 - particle weights
+% 4 - iteration at which tolerance is satisfied
 % INPUTS
 % 'N' number of particles
-% 'Niter' number of time steps
+% 'maxIter' maximum number of iterations
 % 'epsilon' scale parameter for the gaussian smoothing kernel
 % 'phi' degrees at which projections are taken
 % 'xi' offset of projections
 % 'R' Radon transform
 % 'sigma' standard deviation for Normal describing alignment
+% 'tolerance' tolerance for stopping rule
+% 'm' width of moving average
 
-function[x, y, W] = smc_pet(N, Niter, epsilon, phi, xi, R, sigma)    
-    % convert phi to radiants
-    phi = deg2rad(phi);
-    % normalise xi
-    xi = xi/max(xi);
+function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, tolerance, m)    
     
+    % sample from the sinogram R
+    pixels = length(phi);
+    hSample = pinky(xi, phi, R', 10^6);
     % 2D array to store the x-coordinate of the particles for each time step
-    x = zeros(Niter, N);
+    x1 = zeros(maxIter, N);
     % 2D array to store the y-coordinate of the particles for each time step
-    y = zeros(Niter, N);
+    x2 = zeros(maxIter, N);
     % 2D array to store the weights of the particles for each time step
-    W = zeros(Niter, N);
-    % sample random particles in [-0.7, 0.7]^2 for time step n = 1
-    x(1,:) = 1.4 * rand(1, N) - 0.7;
-    y(1,:) = 1.4 * rand(1, N) - 0.7;
+    W = zeros(maxIter, N);
+    % sample random particles in [-0.75, 0.75]^2 for time step n = 1
+    x1(1,:) = 1.5*rand(1, N) - 0.75;
+    x2(1,:) = 1.5*rand(1, N) - 0.75;
     % uniform weights at time step n = 1
     W(1,:) = ones(1, N)/N;
 
+    % KDE
+    % set coordinate system over image
+    % x is in [-0.75, 0.75]
+    evalX1 = linspace(-0.75 + 1/pixels, 0.75 - 1/pixels, pixels);
+    % y is in [-0.75, 0.75]
+    evalX2 = linspace(-0.75 + 1/pixels, 0.75 - 1/pixels, pixels);
+    % build grid with this coordinates
+    RevalX = repmat(evalX1, pixels, 1);
+    eval =[RevalX(:) repmat(evalX2, 1, pixels)'];
+    % bandwidth
+    bw1 = sqrt(epsilon^2 + optimal_bandwidthESS(x1(1, :), W(1, :))^2);
+    bw2 = sqrt(epsilon^2 + optimal_bandwidthESS(x2(1, :), W(1, :))^2);
+    KDE = ksdensity([x1(1, :)' x2(1, :)'], eval, 'weight', ...
+        W(1, :), 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
+    % variance
+    PETvar = zeros(1, maxIter);
+    PETvar(1) = var(KDE, 1);
+    % kl divergence
+    kl = zeros(1, maxIter);
+    
+    iter_stop = 100;
+        
     'Start SMC'
-    for n=2:Niter
-        % sample from the sinogram R
-        hSample = pinky(xi, phi, R', N);
+    for n=2:maxIter
         % ESS
         ESS=1/sum(W(n-1,:).^2);
         %%%%%% RESAMPLING
         if(ESS < N/2)
             ['Resampling at Iteration ' num2str(n)]
             indices = mult_resample(W(n-1,:), N);
-            x(n,:) = x(n-1, indices);
-            y(n,:) = y(n-1, indices);
+            x1(n,:) = x1(n-1, indices);
+            x2(n,:) = x2(n-1, indices);
             W(n,:) = 1/N;
         else
-            x(n,:) = x(n-1,:);
-            y(n,:) = y(n-1,:);	
+            x1(n,:) = x1(n-1,:);
+            x2(n,:) = x2(n-1,:);	
             W(n,:) = W(n-1,:);
         end
                 
         % Markov kernel
-        x(n,:) = x(n,:) + epsilon * randn(1,N);
-        y(n,:) = y(n,:) + epsilon * randn(1,N);
+        x1(n,:) = x1(n,:) + epsilon * randn(1,N);
+        x2(n,:) = x2(n,:) + epsilon * randn(1,N);
         
         % Compute h^N_{n} one for each sample from R
+        yIndex = randsample(1:length(hSample), N, true);
+        y = hSample(yIndex, :);
         hN = zeros(N,1);
         for j=1:N
-             hN(j) = sum(W(n,:) .*  normpdf(x(n-1,:)*cos(hSample(j,2)) + ...
-                 y(n-1,:)*sin(hSample(j,2)) - hSample(j,1), 0, sigma));
+             hN(j) = sum(W(n,:) .*  normpdf(x1(n-1,:)*cos(y(j,2)) + ...
+                 x2(n-1,:)*sin(y(j,2)) - y(j,1), 0, sigma));
         end
         
         % update weights
         for i=1:N
-            g = normpdf(x(n,i)*cos(hSample(:,2)) + ...
-                      y(n,i)*sin(hSample(:,2)) - hSample(:,1), 0, sigma);
+            g = normpdf(x1(n,i)*cos(y(:,2)) + ...
+                      x2(n,i)*sin(y(:,2)) - y(:,1), 0, sigma);
             % potential at time n
             potential = sum(g./ hN);
             % update weights
@@ -70,6 +94,29 @@ function[x, y, W] = smc_pet(N, Niter, epsilon, phi, xi, R, sigma)
         end
         % normalise weights
         W(n,:) = W(n,:) ./ sum(W(n,:));
+        % KDE
+        % bandwidth
+        bw1 = sqrt(epsilon^2 + optimal_bandwidthESS(x1(n, :), W(n, :))^2);
+        bw2 = sqrt(epsilon^2 + optimal_bandwidthESS(x2(n, :), W(n, :))^2);
+        KDE = ksdensity([x1(n, :)' x2(n, :)'], eval, 'weight', ...
+            W(n, :), 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
+        % variance
+        PETvar(n) = var(KDE, 1);
+        % stopping rule
+        if(n>=m)
+            % kl divergence
+            KDE = reshape(KDE, [pixels, pixels]);
+            KDE = flipud(mat2gray(KDE));
+            KDE = KDE(:);
+            kl(n) = pet_kl(R, phi, xi, sigma, eval, KDE);
+            stop_rule = var(PETvar((n-m+1):n), 1) + abs(kl(n)-kl(n-1));
+            if(stop_rule<tolerance)
+                iter_stop = n;
+                ['Stop at iteration ' num2str(n)]
+                % uncomment to exit algorithm as soon as tolerance reached
+                % break
+            end
+        end
     end
     'SMC Finished'
 end
