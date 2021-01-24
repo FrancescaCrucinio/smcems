@@ -23,7 +23,7 @@ epsilon = 1e-03;
 K = @(x1, x2) normpdf(x2, x1, epsilon);
 
 % number of replications
-Nrep = 100;
+Nrep = 1000;
 % execution times
 EMStime = zeros(Nrep, length(N));
 SMCtime = zeros(Nrep, length(N));
@@ -129,3 +129,4 @@ legend(h, 'SMC', 'EMS', 'DKDE-pi', 'DKDE-cv', ['N = ' num2str(N(1))], ['N = ' nu
     'interpreter', 'latex', 'FontSize', ...
     10, 'Location', 'southwest');
 pbaspect([1.5 1 1])
+save('mixture_mise_vs_runtime2_13Jan2021.mat')
