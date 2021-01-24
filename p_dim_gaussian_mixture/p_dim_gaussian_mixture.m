@@ -28,14 +28,14 @@ p_quadrant = p_quadrant^p;
 
 % set parameters
 % number of iterations
-Niter = 10;
+Niter = 50;
 % number of bins/particles
-Nbins = [10, 50];
+Nbins = [10, 50, 100];
 % scale for SMC smoothing
 epsilon = 1e-03;
 
 % number of replications
-Nrep = 2;
+Nrep = 100;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -83,37 +83,37 @@ for index=1:length(Nbins)
         SMCtime(k, index) =toc(tstart);
         
         % moments & probability
-    mSMC = zeros(1, p);
-    vSMC = zeros(1, p);
-    sSMC = zeros(1, p);
-    kSMC = zeros(1, p);
-    mEMS = zeros(1, p);
-    vEMS = zeros(1, p);
-    sEMS = zeros(1, p);
-    kEMS = zeros(1, p);
-    for i=1:p
-        mSMC(i) = sum(W.*x(:, i))/sum(W);
-        mEMS(i) = sum(EMres.*eval(:, i))/sum(EMres);
-        vSMC(i) = sum(W.*x(:, i).^2)/sum(W) - mSMC(i)^2;
-        vEMS(i) = sum(EMres.*eval(:, i).^2)/sum(EMres) - mEMS(i)^2;
-%         for j=1:(i-1)
-%             vSMC(i, j) = sum(W.*x(:, i).*x(:, j))/sum(W) - mSMC(i)*mSMC(j);
-%             vEMS(i, j) = sum(EMres.*eval(:, i).*eval(:, j))/sum(EMres) - mEMS(i)*mEMS(j);
-%         end
-        sSMC(i) = sum(W.*(x(:, i) - mSMC(i)).^3)/(sum(W)*vSMC(i)^(3/2));
-        sEMS(i) = sum(EMres.*(eval(:, i) - mEMS(i)).^3)/(sum(EMres)*vEMS(i)^(3/2));
-        kSMC(i) = sum(W.*(x(:, i) - mSMC(i)).^4)/(sum(W)*vSMC(i)^2);
-        kEMS(i) = sum(EMres.*(eval(:, i) - mEMS(i)).^4)/(sum(EMres)*vEMS(i)^2);
-    end
-    EMSstats(1, k, index) = mean(mEMS);
-    SMCstats(1, k, index) = mean(mSMC);
-    EMSstats(2, k, index) = mean(vEMS);
-    SMCstats(2, k, index) = mean(vSMC);
-    EMSstats(3, k, index) = mean(sEMS);
-    SMCstats(3, k, index) = mean(sSMC);
-    EMSstats(4, k, index) = mean(kEMS);
-    SMCstats(4, k, index) = mean(kSMC);
-    EMSstats(5, k, index) = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles;
-    SMCstats(5, k, index) = sum(EMres(index))/sum(EMres);
+        mSMC = zeros(1, p);
+        vSMC = zeros(1, p);
+        sSMC = zeros(1, p);
+        kSMC = zeros(1, p);
+        mEMS = zeros(1, p);
+        vEMS = zeros(1, p);
+        sEMS = zeros(1, p);
+        kEMS = zeros(1, p);
+        for i=1:p
+            mSMC(i) = sum(W.*x(:, i))/sum(W);
+            mEMS(i) = sum(EMres.*eval(:, i))/sum(EMres);
+            vSMC(i) = sum(W.*x(:, i).^2)/sum(W) - mSMC(i)^2;
+            vEMS(i) = sum(EMres.*eval(:, i).^2)/sum(EMres) - mEMS(i)^2;
+    %         for j=1:(i-1)
+    %             vSMC(i, j) = sum(W.*x(:, i).*x(:, j))/sum(W) - mSMC(i)*mSMC(j);
+    %             vEMS(i, j) = sum(EMres.*eval(:, i).*eval(:, j))/sum(EMres) - mEMS(i)*mEMS(j);
+    %         end
+            sSMC(i) = sum(W.*(x(:, i) - mSMC(i)).^3)/(sum(W)*vSMC(i)^(3/2));
+            sEMS(i) = sum(EMres.*(eval(:, i) - mEMS(i)).^3)/(sum(EMres)*vEMS(i)^(3/2));
+            kSMC(i) = sum(W.*(x(:, i) - mSMC(i)).^4)/(sum(W)*vSMC(i)^2);
+            kEMS(i) = sum(EMres.*(eval(:, i) - mEMS(i)).^4)/(sum(EMres)*vEMS(i)^2);
+        end
+        EMSstats(1, k, index) = mean(mEMS);
+        SMCstats(1, k, index) = mean(mSMC);
+        EMSstats(2, k, index) = mean(vEMS);
+        SMCstats(2, k, index) = mean(vSMC);
+        EMSstats(3, k, index) = mean(sEMS);
+        SMCstats(3, k, index) = mean(sSMC);
+        EMSstats(4, k, index) = mean(kEMS);
+        SMCstats(4, k, index) = mean(kSMC);
+        EMSstats(5, k, index) = sum(EMres(lq))/sum(EMres);
+        SMCstats(5, k, index) = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles;
     end
 end
