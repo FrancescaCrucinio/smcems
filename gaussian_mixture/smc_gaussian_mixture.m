@@ -1,4 +1,4 @@
-% SMC for gaussian mixture exmaple
+% SMC for gaussian mixture example
 % OUTPUTS
 % 1 - particle locations
 % 2 - particle weights

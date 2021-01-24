@@ -1,4 +1,4 @@
-% SMC for gaussian mixture exmaple with truncation
+% SMC for gaussian mixture example with truncation
 % OUTPUTS
 % 1 - particle locations
 % 2 - particle weights

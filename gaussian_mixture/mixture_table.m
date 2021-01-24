@@ -1,4 +1,4 @@
-% Comparison of reconstruction for EM, EMS, IB and SMC
+% Comparison of reconstruction for EM, EMS, IB, SMC and DKDE
 
 % set seed
 rng('default');
@@ -8,6 +8,8 @@ h = @(y) 2*normpdf(y, 0.3, sqrt(0.043^2 + 0.045^2))./3 + ...
     normpdf(y, 0.5, sqrt(0.015^2 + 0.045^2))./3;
 g = @(x,y) normpdf(y, x, 0.045);
 f = @(x) normpdf(x, 0.3, 0.015)/3 + normpdf(x, 0.5, 0.043)*2/3;
+sigG = 0.045;
+varG = sigG^2;
 
 % set parameters
 % EM/EMS/IB
@@ -17,6 +19,7 @@ Niter = 100;
 Nbins = 100;
 % bin centers
 fBin = 1/(2*Nbins):1/Nbins:1;
+dx = fBin(2) - fBin(1);
 % number of samples for IB/SMC
 nsamples = 1000;
 % SMC
@@ -44,7 +47,7 @@ for i=1:Nbins
 end
 
 % number of repetitions
-Nrep = 1;
+Nrep = 1000;
 % percentile of MSE to compare smoothness
 q = 0.95;
 % diagnostics
@@ -56,6 +59,8 @@ SMCmse500 = zeros(Nrep, length(fBin));
 SMCmse1000 = zeros(Nrep, length(fBin));
 SMCmse5000 = zeros(Nrep, length(fBin));
 IBmse = zeros(Nrep, length(fBin));
+DKDEpimse = zeros(Nrep, length(fBin));
+DKDEcvmse = zeros(Nrep, length(fBin));
 % mean, variance, mise, kl
 EMstats = zeros(Nrep, 4);
 EMSKstats = zeros(Nrep, 4);
@@ -64,6 +69,8 @@ SMCstats500 = zeros(Nrep, 4);
 SMCstats1000 = zeros(Nrep, 4);
 SMCstats5000 = zeros(Nrep, 4);
 IBstats = zeros(Nrep, 4);
+DKDEpistats = zeros(Nrep, 4);
+DKDEcvstats = zeros(Nrep, 4);
 % runtimes
 EMtime = zeros(Nrep, 1);
 EMSKtime = zeros(Nrep, 1);
@@ -72,8 +79,10 @@ SMCtime500 = zeros(Nrep, 1);
 SMCtime1000 = zeros(Nrep, 1);
 SMCtime5000 = zeros(Nrep, 1);
 IBtime = zeros(Nrep, 1);
+DKDEpitime = zeros(Nrep, 1);
+DKDEcvtime = zeros(Nrep, 1);
 
-for j=1:Nrep
+parfor j=1:Nrep
     % random starting point
     f0EM = rand(Nbins, 1);
     f0SMC500 = rand(Nparticles(1), 1);
@@ -147,10 +156,24 @@ for j=1:Nrep
     EMSKtime(j) = toc(tstart);
     [EMSKstats(j, :), EMSKmse(j, :)] = ...
         diagnostics(f, h, g, fBin, EMSKres(Niter, :), refY);
+%       DKDE - pi
+    tstart = tic;
+    hPI = PI_deconvUknownth4(obs, 'norm', varG, sigG);
+    fdecPI = fdecUknown(fBin, obs, hPI, 'norm', sigG, dx);
+    DKDEpitime(j) = toc(tstart);
+    [DKDEpistats(j, :), DKDEpimse(j, :)] = ...
+        diagnostics(f, h, g, fBin, fdecPI, refY);
+    %       DKDE - cv
+    tstart = tic;
+    hCV = CVdeconv(obs, 'norm', sigG);
+    fdecCV = fdecUknown(fBin, obs, hCV, 'norm', sigG, dx);
+    DKDEcvtime(j) = toc(tstart);
+    [DKDEcvstats(j, :), DKDEcvmse(j, :)] = ...
+        diagnostics(f, h, g, fBin, fdecCV, refY);
 end
 format long
 % create table with statistics
-resTable = zeros(7, 6);
+resTable = zeros(9, 6);
 % mean, variance, mise, kl
 resTable(1, [1:3, 5]) = mean(EMstats, 1);
 resTable(2, [1:3, 5]) = mean(EMSKstats, 1);
@@ -159,6 +182,8 @@ resTable(4, [1:3, 5]) = mean(IBstats, 1);
 resTable(5, [1:3, 5]) = mean(SMCstats500, 1);
 resTable(6, [1:3, 5]) = mean(SMCstats1000, 1);
 resTable(7, [1:3, 5]) = mean(SMCstats5000, 1);
+resTable(8, [1:3, 5]) = mean(DKDEpistats, 1);
+resTable(9, [1:3, 5]) = mean(DKDEcvstats, 1);
 % mse percentile
 resTable(1, 4) = quantile(mean(EMmse, 1), q);
 resTable(2, 4) = quantile(mean(EMSJmse, 1), q);
@@ -167,6 +192,8 @@ resTable(4, 4) = quantile(mean(IBmse, 1), q);
 resTable(5, 4) = quantile(mean(SMCmse500, 1), q);
 resTable(6, 4) = quantile(mean(SMCmse1000, 1), q);
 resTable(7, 4) = quantile(mean(SMCmse5000, 1), q);
+resTable(8, 4) = quantile(mean(DKDEpimse, 1), q);
+resTable(9, 4) = quantile(mean(DKDEcvmse, 1), q);
 % time
 resTable(1, 6) = mean(EMtime, 1);
 resTable(2, 6) = mean(EMSKtime, 1);
@@ -175,8 +202,10 @@ resTable(4, 6) = mean(IBtime, 1);
 resTable(5, 6) = mean(SMCtime500, 1);
 resTable(6, 6) = mean(SMCtime1000, 1);
 resTable(7, 6) = mean(SMCtime5000, 1);
+resTable(8, 6) = mean(DKDEpitime, 1);
+resTable(9, 6) = mean(DKDEcvtime, 1);
 % log runtime 
 resTable(:, 6) = log(resTable(:, 6));
 % write table
-% dlmwrite('EM_EMS_IB_SMC_Table',resTable,'delimiter', '&',...
-%     'newline', 'pc')
+dlmwrite('EM_EMS_IB_SMC_Table',resTable,'delimiter', '&',...
+    'newline', 'pc')
