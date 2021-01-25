@@ -35,7 +35,7 @@ Nbins = [10, 50, 100];
 epsilon = 1e-03;
 
 % number of replications
-Nrep = 100;
+Nrep = 10;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -43,7 +43,7 @@ SMCtime = zeros(Nrep, length(Nbins));
 EMSstats = zeros(5, Nrep, length(Nbins));
 SMCstats = zeros(5, Nrep, length(Nbins));
 
-for index=1:length(Nbins)
+parfor index=1:length(Nbins)
     % number of particles
     Nparticles = Nbins(index)^p;
     % discretisation grid for EMS

@@ -22,7 +22,6 @@ function[xNew, W] = smc_p_dim_gaussian_mixture(N, Niter, epsilon, x0, hSample)
         ESS=1/sum(W.^2);
         %%%%%% RESAMPLING
         if(ESS < N/2)
-            'Resampling'
             xNew = xOld(mult_resample(W, N), :);
             W = ones(N, 1)/N;
         else
