@@ -80,7 +80,7 @@ parfor index=1:length(Nbins)
         %SMC
         tstart = tic;
         [x, W] = smc_p_dim_gaussian_mixture(Nparticles, Niter, epsilon, x0, hSample);
-        SMCtime(k, index) =toc(tstart);
+        SMCtime(k, index) = toc(tstart);
         
         % moments & probability
         mSMC = zeros(1, p);
@@ -105,15 +105,7 @@ parfor index=1:length(Nbins)
             kSMC(i) = sum(W.*(x(:, i) - mSMC(i)).^4)/(sum(W)*vSMC(i)^2);
             kEMS(i) = sum(EMres.*(eval(:, i) - mEMS(i)).^4)/(sum(EMres)*vEMS(i)^2);
         end
-        EMSstats(1, k, index) = mean(mEMS);
-        SMCstats(1, k, index) = mean(mSMC);
-        EMSstats(2, k, index) = mean(vEMS);
-        SMCstats(2, k, index) = mean(vSMC);
-        EMSstats(3, k, index) = mean(sEMS);
-        SMCstats(3, k, index) = mean(sSMC);
-        EMSstats(4, k, index) = mean(kEMS);
-        SMCstats(4, k, index) = mean(kSMC);
-        EMSstats(5, k, index) = sum(EMres(lq))/sum(EMres);
-        SMCstats(5, k, index) = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles;
+        EMSstats(:, k, index) = [mean(mEMS) mean(vEMS) mean(sEMS) mean(kEMS) sum(EMres(lq))/sum(EMres)];
+        SMCstats(:, k, index) = [mean(mSMC) mean(vSMC) mean(sSMC) mean(kSMC) sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles];
     end
 end
