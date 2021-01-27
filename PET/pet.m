@@ -23,16 +23,16 @@ noisyR = noisyR/max(noisyR, [], 'all');
 %%% set parameters
 % SMC
 % number of iterations
-Niter = 10;
+Niter = 100;
 % number of particles
-N = 100000;
+N = 20000;
 % smoothing parameter
 epsilon = 1e-03;
 % variance of normal describing alignment
 sigma = 0.02;
 % run SMC
 tstart = tic;
-[x, y, W, iter_stop] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 1e-5, 5); 
+[x, y, W, iter_stop, L2norm, moving_var] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 5); 
 toc(tstart);
 % set coordinate system over image
 % x is in [-0.8, 0.8]
