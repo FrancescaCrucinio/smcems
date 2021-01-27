@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 3;
+p = 2;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.5*ones(1, p)];
 sigmaF = cat(3, 0.015^2*ones(1, p), 0.043^2*ones(1, p));
@@ -35,7 +35,7 @@ Nbins = [10, 50, 100];
 epsilon = 1e-03;
 
 % number of replications
-Nrep = 10;
+Nrep = 100;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -55,26 +55,17 @@ parfor index=1:length(Nbins)
     end
     % discretisation of h
     hDisc = pdf(gmH, eval);
-    % discretisation of g
-    gDisc = zeros(length(eval));
-    for i=1:length(eval)
-       for j=1:length(eval)
-          gDisc(i, j) = mvnpdf(eval(i, :), eval(j, :), 0.045^2*eye(p));       
-       end    
-    end
     % indices in lower quadrant
     lq = logical(prod((eval <= 0.5) & (eval >= 0), 2));
     for k=1:Nrep
         % sample from h
         hSample = random(gmH, 10^5);
-        % smoothing matrix
-        Kmatrix = smoothingMatrix_p(epsilon, eval);
         % initial distribution
         f0 = rand(Nbins(index)^p, 1);
         x0 = rand(Nparticles, p);
         % EMS
         tstart = tic;
-        EMres = ems_p(gDisc, hDisc, Niter, Kmatrix, f0);
+        EMres = ems_p(hDisc, p, eval, Niter, epsilon, f0);
         EMStime(k, index) =toc(tstart);
         
         %SMC
@@ -109,4 +100,4 @@ parfor index=1:length(Nbins)
         SMCstats(:, k, index) = [mean(mSMC) mean(vSMC) mean(sSMC) mean(kSMC) sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles];
     end
 end
-save('3dim26Jan2021.mat')
+% save('3dim26Jan2021.mat')
