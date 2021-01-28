@@ -59,30 +59,27 @@ for n=1:Npic
     KDEn = reshape(lambda, [pixels, pixels]);
     KDEn = flipud(mat2gray(KDEn));
     figure(1);
-    %subplot(2, 4, n);
+    subplot(2, 4, n);
     imshow(KDEn, [])
     colormap(gca,hot);
     pbaspect([1 1 1])
-    % title(['Iteration ' num2str(showIter(n))],...
-    %    'interpreter', 'latex', 'FontSize', 10);
+    title(['Iteration ' num2str(showIter(n))],...
+       'interpreter', 'latex', 'FontSize', 10);
     hold off;
     filename = sprintf('%s%d', 'pet', n);
-    printEps(gcf, filename)
     % MISE
     mse(n) = immse(P, KDEn);
     % relative error
     figure(2);
-    %subplot(2, 4, n)
+    subplot(2, 4, n)
     error = abs(KDEn - P);
     positive = (P>0);
     error(positive) = error(positive)./P(positive);
     imshow(error, [])
     colormap(gca,hot);
     pbaspect([1 1 1])
-    % title(['Iteration ' num2str(showIter(n))],...
-    %    'interpreter', 'latex', 'FontSize', 10);
-    filename = sprintf('%s%d', 'pet_relative_error', n);
-    printEps(gcf, filename)
+    title(['Iteration ' num2str(showIter(n))],...
+       'interpreter', 'latex', 'FontSize', 10);
 end
 'MSE'
 mse
