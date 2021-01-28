@@ -32,7 +32,7 @@ epsilon = 1e-03;
 sigma = 0.02;
 % run SMC
 tstart = tic;
-[x, y, W, iter_stop, L2norm, moving_var] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 5); 
+[x, y, W, iter_stop] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 15); 
 toc(tstart);
 % set coordinate system over image
 % x is in [-0.8, 0.8]
@@ -45,7 +45,7 @@ eval =[RevalX(:) repmat(evalY, 1, pixels)'];
 
 %%% plot
 % select which steps to show
-showIter = [1, 5, 10, 15, 37, 50, 70, Niter];
+showIter = [1, 5, 10, 15, 20, 50, 70, Niter];
 Npic = length(showIter);
 % mise
 mse = zeros(1, Npic);
@@ -89,4 +89,3 @@ mse
 
 % ESS
 1./sum(W(iter_stop, :).^2, 2)
-% 1.4081e+04

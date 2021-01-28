@@ -14,4 +14,4 @@ The folder `motion_deblurring` contains the scripts to reproduce the example in 
 
 The 2-dimensional examples require the function `pinky.m` which can be downloaded [here](https://uk.mathworks.com/matlabcentral/fileexchange/35797-generate-random-numbers-from-a-2d-discrete-distribution).
 
-The code for the deconvolution kernel density estimators (DKDE) used in the gaussian_mixture example can be downloaded [here](https://researchers.ms.unimelb.edu.au/~aurored/links.html#Code).
+The code for the deconvolution kernel density estimators (DKDE) used in the `gaussian_mixture` example can be downloaded [here](https://researchers.ms.unimelb.edu.au/~aurored/links.html#Code).
