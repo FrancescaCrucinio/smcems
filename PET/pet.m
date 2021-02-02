@@ -23,16 +23,16 @@ noisyR = noisyR/max(noisyR, [], 'all');
 %%% set parameters
 % SMC
 % number of iterations
-Niter = 10;
+Niter = 100;
 % number of particles
-N = 100000;
+N = 20000;
 % smoothing parameter
 epsilon = 1e-03;
 % variance of normal describing alignment
 sigma = 0.02;
 % run SMC
 tstart = tic;
-[x, y, W, iter_stop] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 1e-5, 5); 
+[x, y, W, iter_stop] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 15); 
 toc(tstart);
 % set coordinate system over image
 % x is in [-0.8, 0.8]
@@ -45,7 +45,7 @@ eval =[RevalX(:) repmat(evalY, 1, pixels)'];
 
 %%% plot
 % select which steps to show
-showIter = [1, 5, 10, 15, 37, 50, 70, Niter];
+showIter = [1, 5, 10, 15, 20, 50, 70, Niter];
 Npic = length(showIter);
 % mise
 mse = zeros(1, Npic);
@@ -59,34 +59,30 @@ for n=1:Npic
     KDEn = reshape(lambda, [pixels, pixels]);
     KDEn = flipud(mat2gray(KDEn));
     figure(1);
-    %subplot(2, 4, n);
+    subplot(2, 4, n);
     imshow(KDEn, [])
     colormap(gca,hot);
     pbaspect([1 1 1])
-    % title(['Iteration ' num2str(showIter(n))],...
-    %    'interpreter', 'latex', 'FontSize', 10);
+    title(['Iteration ' num2str(showIter(n))],...
+       'interpreter', 'latex', 'FontSize', 10);
     hold off;
     filename = sprintf('%s%d', 'pet', n);
-    printEps(gcf, filename)
     % MISE
     mse(n) = immse(P, KDEn);
     % relative error
     figure(2);
-    %subplot(2, 4, n)
+    subplot(2, 4, n)
     error = abs(KDEn - P);
     positive = (P>0);
     error(positive) = error(positive)./P(positive);
     imshow(error, [])
     colormap(gca,hot);
     pbaspect([1 1 1])
-    % title(['Iteration ' num2str(showIter(n))],...
-    %    'interpreter', 'latex', 'FontSize', 10);
-    filename = sprintf('%s%d', 'pet_relative_error', n);
-    printEps(gcf, filename)
+    title(['Iteration ' num2str(showIter(n))],...
+       'interpreter', 'latex', 'FontSize', 10);
 end
 'MSE'
 mse
 
 % ESS
 1./sum(W(iter_stop, :).^2, 2)
-% 1.4081e+04

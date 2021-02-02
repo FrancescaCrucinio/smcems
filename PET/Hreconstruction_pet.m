@@ -1,4 +1,4 @@
-% Kullback-Leilbler divergence for PET reconstruction
+% Recontruction of h for PET
 % OUTPUTS
 % 1 - KL divergence between observed sinogram and reconstructed sinogram
 % from PET image reconstruction
@@ -10,25 +10,16 @@
 % 'KDEx' pixel locations for PET image
 % 'KDEy' pixel color for PET image
 
-function div = pet_kl(R, phi, xi, sigma, KDEx, KDEy)
-    delta1 = phi(2) - phi(1);
-    delta2 = xi(2) - xi(1);
-    % logarithm of true h
-    trueHlog = log(R);
-    trueHlog(~isfinite(trueHlog)) = 0;
-    % approximated value
+function hatH = Hreconstruction_pet(phi, xi, sigma, KDEx, KDEy)
+    dx = KDEx(1, 2) - KDEx(2, 2);
+    % convolution of approximated of and g
     hatH = zeros(length(xi), length(phi));
     % convolution with approximated f
     % this gives the approximated value
     for i=1:length(xi)
         for j=1:length(phi)
-            hatH(i, j) = sum(normpdf(KDEx(:, 1) * cos(phi(j)) +...
+            hatH(i, j) = dx^2*sum(normpdf(KDEx(:, 1) * cos(phi(j)) +...
                 KDEx(:, 2) * sin(phi(j)) - xi(i), 0, sigma).* KDEy);
         end
     end
-    hatH = hatH/max(hatH, [], 'all');
-    % compute log of hatH
-    hatHlog = log(hatH);
-    hatHlog(~isfinite(hatHlog)) = 0;
-    div = delta1*delta2*sum(R.*(trueHlog - hatHlog), 'all');
 end

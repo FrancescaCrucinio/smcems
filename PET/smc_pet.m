@@ -2,7 +2,7 @@
 % OUTPUTS
 % 1/2 - particle locations
 % 3 - particle weights
-% 4 - iteration at which tolerance is satisfied
+% 4 - iteration at which stopping criterion is satisfied
 % INPUTS
 % 'N' number of particles
 % 'maxIter' maximum number of iterations
@@ -14,7 +14,7 @@
 % 'tolerance' tolerance for stopping rule
 % 'm' width of moving average
 
-function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, tolerance, m)    
+function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, m)    
     
     % sample from the sinogram R
     pixels = length(phi);
@@ -40,6 +40,9 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
     % build grid with this coordinates
     RevalX = repmat(evalX1, pixels, 1);
     eval =[RevalX(:) repmat(evalX2, 1, pixels)'];
+    % grid for reconstructed h
+    delta1 = phi(2) - phi(1);
+    delta2 = xi(2) - xi(1);
     % bandwidth
     bw1 = sqrt(epsilon^2 + optimal_bandwidthESS(x1(1, :), W(1, :))^2);
     bw2 = sqrt(epsilon^2 + optimal_bandwidthESS(x2(1, :), W(1, :))^2);
@@ -48,13 +51,14 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
     % variance
     PETvar = zeros(1, maxIter);
     PETvar(1) = var(KDE, 1);
-    % kl divergence
-    kl = zeros(1, maxIter);
-    
+    % reconstruction of h
+    hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
+    % stopping rule
     iter_stop = 100;
         
     'Start SMC'
     for n=2:maxIter
+        hatHOld = hatHNew;
         % ESS
         ESS=1/sum(W(n-1,:).^2);
         %%%%%% RESAMPLING
@@ -102,15 +106,16 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
             W(n, :), 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
         % variance
         PETvar(n) = var(KDE, 1);
+        % L2norm
+        KDE = reshape(KDE, [pixels, pixels]);
+        KDE = flipud(mat2gray(KDE));
+        KDE = KDE(:);
+        hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
         % stopping rule
         if(n>=m)
-            % kl divergence
-            KDE = reshape(KDE, [pixels, pixels]);
-            KDE = flipud(mat2gray(KDE));
-            KDE = KDE(:);
-            kl(n) = pet_kl(R, phi, xi, sigma, eval, KDE);
-            stop_rule = var(PETvar((n-m+1):n), 1) + abs(kl(n)-kl(n-1));
-            if(stop_rule<tolerance)
+            L2norm = delta1*delta2*sum((hatHNew - hatHOld).^2, 'all');
+            moving_var = var(PETvar((n-m+1):n));
+            if(L2norm<=moving_var)
                 iter_stop = n;
                 ['Stop at iteration ' num2str(n)]
                 % uncomment to exit algorithm as soon as tolerance reached
