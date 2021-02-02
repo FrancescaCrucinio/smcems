@@ -21,7 +21,7 @@ v = second_moment - m.^2;
 third_moment = (0.0272025 + 2*0.127773)*ones(1, p)/3;
 s = (third_moment - 3*m.*v-m.^3)./v.^(3/2);
 fourth_moment = (0.00822165 + 2*0.0652838)*ones(1, p)/3;
-j = (fourth_moment - 4*third_moment.*m + 6*second_moment.*m.^2 - 3*m.^4)./v.^2;
+k = (fourth_moment - 4*third_moment.*m + 6*second_moment.*m.^2 - 3*m.^4)./v.^2;
 % probability of lower quadrant
 p_quadrant = ((normcdf(0.5, 0.3, 0.015)-normcdf(0, 0.3, 0.015)) + 2*(normcdf(0.5, 0.5, 0.043)-normcdf(0, 0.3, 0.043)))/3;
 p_quadrant = p_quadrant^p;
@@ -45,7 +45,7 @@ EMSstats = zeros(5, length(Nbins), Nrep);
 SMCstats = zeros(5, length(Nbins), Nrep);
 DKDEstats = zeros(5, length(Nbins), Nrep);
 
-for index=1:length(Nbins)
+parfor index=1:length(Nbins)
     % number of particles
     Nparticles = Nbins(index)^p;
     % discretisation grid for EMS
