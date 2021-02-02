@@ -14,7 +14,7 @@
 % 'tolerance' tolerance for stopping rule
 % 'm' width of moving average
 
-function[x1, x2, W, iter_stop, L2norm, moving_var] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, m)    
+function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, m)    
     
     % sample from the sinogram R
     pixels = length(phi);
@@ -53,8 +53,7 @@ function[x1, x2, W, iter_stop, L2norm, moving_var] = smc_pet(N, maxIter, epsilon
     PETvar(1) = var(KDE, 1);
     % reconstruction of h
     hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
-    L2norm = zeros(1, maxIter);
-    moving_var = zeros(1, maxIter);
+    % stopping rule
     iter_stop = 100;
         
     'Start SMC'
@@ -107,20 +106,20 @@ function[x1, x2, W, iter_stop, L2norm, moving_var] = smc_pet(N, maxIter, epsilon
             W(n, :), 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
         % variance
         PETvar(n) = var(KDE, 1);
+        % L2norm
+        KDE = reshape(KDE, [pixels, pixels]);
+        KDE = flipud(mat2gray(KDE));
+        KDE = KDE(:);
+        hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
         % stopping rule
         if(n>=m)
-            % kl divergence
-            KDE = reshape(KDE, [pixels, pixels]);
-            KDE = flipud(mat2gray(KDE));
-            KDE = KDE(:);
-            hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
-            L2norm(n) = delta1*delta2*sum((hatHNew - hatHOld).^2, 'all');
-            moving_var(n) = var(PETvar((n-m+1):n));
-            if(L2norm(n)<=0.7*moving_var(n))
+            L2norm = delta1*delta2*sum((hatHNew - hatHOld).^2, 'all');
+            moving_var = var(PETvar((n-m+1):n));
+            if(L2norm<=moving_var)
                 iter_stop = n;
                 ['Stop at iteration ' num2str(n)]
                 % uncomment to exit algorithm as soon as tolerance reached
-                break
+                % break
             end
         end
     end

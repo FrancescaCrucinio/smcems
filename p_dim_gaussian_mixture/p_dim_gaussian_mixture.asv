@@ -30,7 +30,7 @@ p_quadrant = p_quadrant^p;
 % number of iterations
 Niter = 50;
 % number of bins/particles
-Nbins = [10 50 100];
+Nbins = [10;
 % scale for SMC smoothing
 epsilon = 1e-03;
 
