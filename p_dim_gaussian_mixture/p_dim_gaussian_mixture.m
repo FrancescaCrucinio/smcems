@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 2;
+p = 3;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.5*ones(1, p)];
 sigmaF = cat(3, 0.015^2*ones(1, p), 0.043^2*ones(1, p));
@@ -100,4 +100,6 @@ parfor index=1:length(Nbins)
         SMCstats(:, k, index) = [mean(mSMC) mean(vSMC) mean(sSMC) mean(kSMC) sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles];
     end
 end
-% save('3dim26Jan2021.mat')
+save('3dim28Jan2021.mat')
+
+mean(SMCstats, 2)
