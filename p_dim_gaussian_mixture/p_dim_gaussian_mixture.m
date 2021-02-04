@@ -32,10 +32,10 @@ Niter = 50;
 % number of bins/particles
 Nbins = [10 50];
 % scale for SMC smoothing
-epsilon = 1e-03;
+epsilon = 1e-02;
 
 % number of replications
-Nrep = 2;
+Nrep = 10;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -118,16 +118,14 @@ end
 % create table
 format long
 resTable = zeros(3*length(Nbins), 6);
-resTable([1 4], 1:5) = mean(EMSstats, 3)';
+resTable([1 4], 1:5) = mean(EMSstats.^2, 3)';
 resTable([1 4], 6) = mean(EMStime, 1);
-resTable([2 5], 1:5) = mean(SMCstats, 3)';
+resTable([2 5], 1:5) = mean(SMCstats.^2, 3)';
 resTable([2 5], 6) = mean(SMCtime, 1);
-resTable([3 6], 1:5) = mean(DKDEstats, 3)';
+resTable([3 6], 1:5) = mean(DKDEstats.^2, 3)';
 resTable([3 6], 6) = mean(DKDEtime, 1);
 % log runtime 
 resTable(:, 6) = log(resTable(:, 6));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('2dim2Feb2021.mat')
-
