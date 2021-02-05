@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 3;
+p = 2;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.5*ones(1, p)];
 sigmaF = cat(3, 0.015^2*ones(1, p), 0.043^2*ones(1, p));
@@ -129,5 +129,5 @@ resTable(:, 6) = log(resTable(:, 6));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('3dim4Feb2021.mat')
+save('2dim5Feb2021.mat')
 
