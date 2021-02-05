@@ -28,7 +28,10 @@ function f = ems_p(hDisc, p, eval, Niter, epsilon, f0)
         end
         % smooth f
         for b=1:M
-            f(b) = f_temp' * mvnpdf(eval, eval(b, :), epsilon^2*eye(p));
+            weights = mvnpdf(eval, eval(b, :), epsilon^2*eye(p));
+            % normalise weights
+            weights = weights./sum(weights);
+            f(b) = f_temp' * weights;
         end
     end
 end
