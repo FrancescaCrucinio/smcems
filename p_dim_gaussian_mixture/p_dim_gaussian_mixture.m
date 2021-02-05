@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 3;
+p = 2;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.5*ones(1, p)];
 sigmaF = cat(3, 0.015^2*ones(1, p), 0.043^2*ones(1, p));
@@ -30,12 +30,12 @@ p_quadrant = p_quadrant^p;
 % number of iterations
 Niter = 50;
 % number of bins/particles
-Nbins = [10 50 100];
+Nbins = [10 50];
 % scale for SMC smoothing
-epsilon = 1e-02;
+epsilon = 1e-03;
 
 % number of replications
-Nrep = 10;
+Nrep = 2;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -102,10 +102,10 @@ parfor index=1:length(Nbins)
             kHat(2, i) = sum(EMSres.*(eval(:, i) - mHat(2, i)).^4)/(sum(EMSres)*vHat(2, i)^2);
             kHat(3, i) = sum(DKDEres.*(eval(:, i) - mHat(3, i)).^4)/(sum(DKDEres)*vHat(3, i)^2);
         end
-        mHat = mHat - mean(m);
-        vHat = vHat - mean(v);
-        sHat = sHat - mean(s);
-        kHat = kHat - mean(k);
+%         mHat = mHat - mean(m);
+%         vHat = vHat - mean(v);
+%         sHat = sHat - mean(s);
+%         kHat = kHat - mean(k);
         pEMS = sum(EMSres(lq))/sum(EMSres) - p_quadrant;
         pDKDE = sum(DKDEres(lq))/sum(DKDEres) - p_quadrant;
         pSMC = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles - p_quadrant;
@@ -118,12 +118,12 @@ end
 % create table
 format long
 resTable = zeros(3*length(Nbins), 6);
-resTable([1 4 7], 1:5) = mean(EMSstats.^2, 3)';
-resTable([1 4 7], 6) = mean(EMStime, 1);
-resTable([2 5 8], 1:5) = mean(SMCstats.^2, 3)';
-resTable([2 5 8], 6) = mean(SMCtime, 1);
-resTable([3 6 9], 1:5) = mean(DKDEstats.^2, 3)';
-resTable([3 6 9], 6) = mean(DKDEtime, 1);
+resTable([1 4], 1:5) = mean(EMSstats, 3)';
+resTable([1 4], 6) = mean(EMStime, 1);
+resTable([2 5], 1:5) = mean(SMCstats, 3)';
+resTable([2 5], 6) = mean(SMCtime, 1);
+resTable([3 6], 1:5) = mean(DKDEstats, 3)';
+resTable([3 6], 6) = mean(DKDEtime, 1);
 % log runtime 
 resTable(:, 6) = log(resTable(:, 6));
 % write table
