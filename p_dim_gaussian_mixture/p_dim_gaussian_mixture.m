@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 2;
+p = 3;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.5*ones(1, p)];
 sigmaF = cat(3, 0.015^2*ones(1, p), 0.043^2*ones(1, p));
@@ -30,20 +30,20 @@ p_quadrant = p_quadrant^p;
 % number of iterations
 Niter = 50;
 % number of bins/particles
-Nbins = [10 50];
+Nbins = [10 20 50];
 % scale for SMC smoothing
-epsilon = 1e-03;
+epsilon = 1e-02;
 
 % number of replications
-Nrep = 2;
+Nrep = 10;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
-DKDEtime = zeros(Nrep, length(Nbins));
+% DKDEtime = zeros(Nrep, length(Nbins));
 % mise
 EMSstats = zeros(5, length(Nbins), Nrep);
 SMCstats = zeros(5, length(Nbins), Nrep);
-DKDEstats = zeros(5, length(Nbins), Nrep);
+% DKDEstats = zeros(5, length(Nbins), Nrep);
 
 parfor index=1:length(Nbins)
     % number of particles
@@ -75,59 +75,59 @@ parfor index=1:length(Nbins)
         [x, W] = smc_p_dim_gaussian_mixture(Nparticles, Niter, epsilon, x0, hSample);
         SMCtime(j, index) = toc(tstart);
         
-        % DKDE
-        % sample from h
-        y = random(gmH, Nparticles*10);
-        tstart = tic;
-        DKDEres = DKDE_p_dim(Nbins(index), y, 0.045);
-        DKDEtime(j, index) = toc(tstart);
+%         % DKDE
+%         % sample from h
+%         y = random(gmH, Nparticles*10);
+%         tstart = tic;
+%         DKDEres = DKDE_p_dim(Nbins(index), y, 0.045);
+%         DKDEtime(j, index) = toc(tstart);
         
         % moments & probability
-        mHat = zeros(3, p);
-        vHat = zeros(3, p);
-        sHat = zeros(3, p);
-        kHat = zeros(3, p);
+        mHat = zeros(2, p);
+        vHat = zeros(2, p);
+        sHat = zeros(2, p);
+        kHat = zeros(2, p);
         
         for i=1:p
             mHat(1, i) = sum(W.*x(:, i))/sum(W);
             mHat(2, i) = sum(EMSres.*eval(:, i))/sum(EMSres);
-            mHat(3, i) = sum(DKDEres.*eval(:, i))/sum(DKDEres);
+%             mHat(3, i) = sum(DKDEres.*eval(:, i))/sum(DKDEres);
             vHat(1, i) = sum(W.*x(:, i).^2)/sum(W) - mHat(1, i)^2;
             vHat(2, i) = sum(EMSres.*eval(:, i).^2)/sum(EMSres) - mHat(2, i)^2;
-            vHat(3, i) = sum(DKDEres.*eval(:, i).^2)/sum(DKDEres) - mHat(3, i)^2;
+%             vHat(3, i) = sum(DKDEres.*eval(:, i).^2)/sum(DKDEres) - mHat(3, i)^2;
             sHat(1, i) = sum(W.*(x(:, i) - mHat(1, i)).^3)/(sum(W)*vHat(1, i)^(3/2));
             sHat(2, i) = sum(EMSres.*(eval(:, i) - mHat(2, i)).^3)/(sum(EMSres)*vHat(2, i)^(3/2));
-            sHat(3, i) = sum(DKDEres.*(eval(:, i) - mHat(3, i)).^3)/(sum(DKDEres)*vHat(3, i)^(3/2));
+%             sHat(3, i) = sum(DKDEres.*(eval(:, i) - mHat(3, i)).^3)/(sum(DKDEres)*vHat(3, i)^(3/2));
             kHat(1, i) = sum(W.*(x(:, i) - mHat(1, i)).^4)/(sum(W)*vHat(1, i)^2);
             kHat(2, i) = sum(EMSres.*(eval(:, i) - mHat(2, i)).^4)/(sum(EMSres)*vHat(2, i)^2);
-            kHat(3, i) = sum(DKDEres.*(eval(:, i) - mHat(3, i)).^4)/(sum(DKDEres)*vHat(3, i)^2);
+%             kHat(3, i) = sum(DKDEres.*(eval(:, i) - mHat(3, i)).^4)/(sum(DKDEres)*vHat(3, i)^2);
         end
-%         mHat = mHat - mean(m);
-%         vHat = vHat - mean(v);
-%         sHat = sHat - mean(s);
-%         kHat = kHat - mean(k);
+        mHat = mHat - mean(m);
+        vHat = vHat - mean(v);
+        sHat = sHat - mean(s);
+        kHat = kHat - mean(k);
         pEMS = sum(EMSres(lq))/sum(EMSres) - p_quadrant;
-        pDKDE = sum(DKDEres(lq))/sum(DKDEres) - p_quadrant;
+%         pDKDE = sum(DKDEres(lq))/sum(DKDEres) - p_quadrant;
         pSMC = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles - p_quadrant;
         EMSstats(:, index, j) = [mean(mHat(2, :)) mean(vHat(2, :)) mean(sHat(2, :)) mean(kHat(2, :)) pEMS];
         SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) mean(sHat(1, :)) mean(kHat(1, :)) pSMC];
-        DKDEstats(:, index, j) = [mean(mHat(3, :)) mean(vHat(3, :)) mean(sHat(3, :)) mean(kHat(3, :)) pDKDE];
+%         DKDEstats(:, index, j) = [mean(mHat(3, :)) mean(vHat(3, :)) mean(sHat(3, :)) mean(kHat(3, :)) pDKDE];
     end
 end
 
 % create table
 format long
 resTable = zeros(3*length(Nbins), 6);
-resTable([1 4], 1:5) = mean(EMSstats, 3)';
-resTable([1 4], 6) = mean(EMStime, 1);
-resTable([2 5], 1:5) = mean(SMCstats, 3)';
-resTable([2 5], 6) = mean(SMCtime, 1);
-resTable([3 6], 1:5) = mean(DKDEstats, 3)';
-resTable([3 6], 6) = mean(DKDEtime, 1);
+resTable([1 4 7], 1:5) = mean(EMSstats.^2, 3)';
+resTable([1 4 7], 6) = mean(EMStime, 1);
+resTable([2 5 8], 1:5) = mean(SMCstats.^2, 3)';
+resTable([2 5 8], 6) = mean(SMCtime, 1);
+resTable([3 6 9], 1:5) = mean(DKDEstats.^2, 3)';
+resTable([3 6 9], 6) = mean(DKDEtime, 1);
 % log runtime 
 resTable(:, 6) = log(resTable(:, 6));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('2dim5Feb2021.mat')
+save('3dim7Feb2021.mat')
 
