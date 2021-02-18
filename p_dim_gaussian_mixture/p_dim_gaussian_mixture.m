@@ -26,27 +26,31 @@ k = (fourth_moment - 4*third_moment.*m + 6*second_moment.*m.^2 - 3*m.^4)./v.^2;
 % probability of lower quadrant
 p_quadrant = ((normcdf(0.5, 0.3, 0.07)-normcdf(0, 0.3, 0.07)) + 2*(normcdf(0.5, 0.7, 0.1)-normcdf(0, 0.7, 0.1)))/3;
 p_quadrant = p_quadrant^p;
-
+% probability of circle of radius r around the mode [0.3]^p
+r = 0.3;
+% sample from f
+fSample = random(gmF, 10^6);
+p_circle = sum(sum(fSample - mu(1, 1), 2).^2 <= r)/10^6;
 % set parameters
 % number of iterations
-Niter = 100;
+Niter = 30;
 % number of bins/particles
-Nbins = [10 20 50];
+Nbins = [10 50];
 % scale for SMC smoothing
 epsilon = 1e-03;
 
 % number of replications
-Nrep = 10;
+Nrep = 5;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
 % DKDEtime = zeros(Nrep, length(Nbins));
 % mise
-EMSstats = zeros(5, length(Nbins), Nrep);
-SMCstats = zeros(5, length(Nbins), Nrep);
+EMSstats = zeros(6, length(Nbins), Nrep);
+SMCstats = zeros(6, length(Nbins), Nrep);
 % DKDEstats = zeros(5, length(Nbins), Nrep);
 
-parfor index=1:length(Nbins)
+for index=1:length(Nbins)
     % number of particles
     Nparticles = Nbins(index)^p;
     % discretisation grid for EMS
@@ -60,6 +64,8 @@ parfor index=1:length(Nbins)
     hDisc = pdf(gmH, eval);
     % indices in lower quadrant
     lq = logical(prod((eval <= 0.5) & (eval >= 0), 2));
+    % indices in circle
+    c = logical(sum(eval - mu(1, 1), 2).^2 <= r);
     for j=1:Nrep
         % sample from h
         hSample = random(gmH, 10^5);
@@ -81,7 +87,6 @@ parfor index=1:length(Nbins)
         vHat = zeros(2, p);
         sHat = zeros(2, p);
         kHat = zeros(2, p);
-        
         for i=1:p
             mHat(1, i) = sum(W.*x(:, i))/sum(W);
             mHat(2, i) = sum(EMSres.*eval(:, i))/sum(EMSres);
@@ -92,31 +97,37 @@ parfor index=1:length(Nbins)
             kHat(1, i) = sum(W.*(x(:, i) - mHat(1, i)).^4)/(sum(W)*vHat(1, i)^2);
             kHat(2, i) = sum(EMSres.*(eval(:, i) - mHat(2, i)).^4)/(sum(EMSres)*vHat(2, i)^2);
         end
-        pEMS = sum(EMSres(lq))/sum(EMSres);
-        pSMC = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles;
-        EMSstats(:, index, j) = [mean(mHat(2, :)) mean(vHat(2, :)) mean(sHat(2, :)) mean(kHat(2, :)) pEMS];
-        SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) mean(sHat(1, :)) mean(kHat(1, :)) pSMC];
+        pEMSquadrant = sum(EMSres(lq))/sum(EMSres);
+        pSMCquadrant = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles;
+        pEMScircle = sum(EMSres(c))/sum(EMSres);
+        pSMCcircle = sum(sum(x - mu(1, 1), 2).^2 <= r)/Nparticles;
+        EMSstats(:, index, j) = [mean(mHat(2, :)) mean(vHat(2, :)) mean(sHat(2, :)) mean(kHat(2, :)) pEMSquadrant pEMScircle];
+        SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) mean(sHat(1, :)) mean(kHat(1, :)) pSMCquadrant pSMCcircle];
     end
 end
+EMSstatsSTD = zeros(6, length(Nbins), Nrep);
+SMCstatsSTD = zeros(6, length(Nbins), Nrep);
 EMSstatsSTD(1, :, :) = EMSstats(1, :, :) - m;
 EMSstatsSTD(2, :, :) = EMSstats(2, :, :) - v;
 EMSstatsSTD(3, :, :) = EMSstats(3, :, :) - s;
 EMSstatsSTD(4, :, :) = EMSstats(4, :, :) - k;
 EMSstatsSTD(5, :, :) = EMSstats(5, :, :) - p_quadrant;
+EMSstatsSTD(6, :, :) = EMSstats(6, :, :) - p_circle;
 SMCstatsSTD(1, :, :) = SMCstats(1, :, :) - m;
 SMCstatsSTD(2, :, :) = SMCstats(2, :, :) - v;
 SMCstatsSTD(3, :, :) = SMCstats(3, :, :) - s;
 SMCstatsSTD(4, :, :) = SMCstats(4, :, :) - k;
 SMCstatsSTD(5, :, :) = SMCstats(5, :, :) - p_quadrant;
+SMCstatsSTD(6, :, :) = SMCstats(6, :, :) - p_circle;
 % create table
 format long
-resTable = zeros(2*length(Nbins), 6);
-resTable(1:2:5, 1:5) = mean(EMSstatsSTD.^2, 3)';
-resTable(1:2:5, 6) = mean(EMStime, 1);
-resTable(2:2:6, 1:5) = mean(SMCstatsSTD.^2, 3)';
-resTable(2:2:6, 6) = mean(SMCtime, 1);
+resTable = zeros(2*length(Nbins), 7);
+resTable(1:2:5, 1:6) = mean(EMSstatsSTD.^2, 3)';
+resTable(1:2:5, 7) = mean(EMStime, 1);
+resTable(2:2:6, 1:6) = mean(SMCstatsSTD.^2, 3)';
+resTable(2:2:6, 7) = mean(SMCtime, 1);
 % log runtime 
-resTable(:, 6) = log(resTable(:, 6));
+resTable(:, 7) = log(resTable(:, 7));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')

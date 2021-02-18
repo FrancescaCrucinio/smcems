@@ -16,21 +16,21 @@ gmH = gmdistribution(mu, sigmaH, weights);
 
 % discretisation grid
 Ndarrays = cell(1, p);
-grid1d = linspace(0, 1, 100);
+grid1d = linspace(0, 1, 200);
 dx = grid1d(2) - grid1d(1);
 [Ndarrays{:}] = ndgrid(grid1d); 
-eval_grid = zeros(100^p, p);
+eval_grid = zeros(200^p, p);
 for i=1:p
     eval_grid(:, i) = Ndarrays{i}(:);
 end
 fDisc = pdf(gmF, eval_grid);
-fDisc = reshape(fDisc, [100, 100]);
+fDisc = reshape(fDisc, [200, 200]);
 
 % set parameters
 % number of iterations
-Niter = 100;
+Niter = 20;
 % number of bins/particles
-Nbins = 10;
+Nbins = 200;
 Nparticles = Nbins^p;
 % smoothing parameter
 epsilon = 1e-03;
@@ -55,7 +55,7 @@ x0 = rand(Nparticles, p);
 tstart = tic;
 EMSres = ems_p(hDisc, p, eval, Niter, epsilon, f0, sigmaG);
 EMS = reshape(EMSres, [Nbins, Nbins]);
-EMS = repelem(EMS, 100/Nbins, 100/Nbins);
+EMS = repelem(EMS, 200/Nbins, 200/Nbins);
 'EMS'
 toc(tstart)
 dx^2*norm(fDisc - EMS)^2
@@ -67,40 +67,22 @@ bw1 = sqrt(epsilon^2 + optimal_bandwidthESS(x(:, 1), W)^2);
 bw2 = sqrt(epsilon^2 + optimal_bandwidthESS(x(:, 2), W)^2);
 lambda = ksdensity([x(:, 1) x(:, 2)], eval_grid, 'weight', ...
     W, 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
-SMC_EMS = reshape(lambda, [100, 100]);
+SMC_EMS = reshape(lambda, [200, 200]);
 'SMC'
 toc(tstart)
 dx^2*norm(fDisc - SMC_EMS)^2
-% DKDE
-% sample from h
-y = random(gmH, Nparticles);
-tstart = tic;
-DKDEres = DKDE_p_dim(100, y, sigmaG);
-DKDE = reshape(DKDEres, [100, 100]);
-'DKDE'
-toc(tstart)
-dx^2*norm(fDisc - DKDE)^2
 
-% % plots
+% plots
 close;
-% subplot(2, 2, 1)
+subplot(2, 2, 1)
 surface(grid1d, grid1d, fDisc)
 shading interp
 pbaspect([1 1 1])
-printEps_axes(gcf, gca, 'mixture2')
-close;
-% subplot(2, 2, 2)
+subplot(2, 2, 2)
 surface(grid1d, grid1d, SMC_EMS)
 shading interp
 pbaspect([1 1 1])
-printEps_axes(gcf, gca, 'mixture2_SMC10')
-close;
-% subplot(2, 2, 3)
+subplot(2, 2, 3)
 surface(grid1d, grid1d, EMS)
 shading interp
 pbaspect([1 1 1])
-printEps_axes(gcf, gca, 'mixture2_EMS10')
-% subplot(2, 2, 4)
-% surface(grid1d, grid1d, DKDE)
-% shading interp
-% pbaspect([1 1 1])

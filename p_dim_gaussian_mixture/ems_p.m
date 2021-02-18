@@ -21,7 +21,7 @@ function f = ems_p(hDisc, p, eval, Niter, epsilon, f0, sigmaG)
         weights = weights./sum(weights);
         f(b) = f' * weights;
     end
-    for t=2:Niter
+    for n=2:Niter
         % update the denominator
         den = zeros(1, M);
         for d=1:M
