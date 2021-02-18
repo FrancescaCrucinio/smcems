@@ -31,12 +31,12 @@ p_quadrant = p_quadrant^p;
 % number of iterations
 Niter = 100;
 % number of bins/particles
-Nbins = [10 20 50];
+Nbins = [10 50 100];
 % scale for SMC smoothing
 epsilon = 1e-03;
 
 % number of replications
-Nrep = 10;
+Nrep = 100;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -98,6 +98,8 @@ parfor index=1:length(Nbins)
         SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) mean(sHat(1, :)) mean(kHat(1, :)) pSMC];
     end
 end
+EMSstatsSTD = zeros(5, length(Nbins), Nrep);
+SMCstatsSTD = zeros(5, length(Nbins), Nrep);
 EMSstatsSTD(1, :, :) = EMSstats(1, :, :) - m;
 EMSstatsSTD(2, :, :) = EMSstats(2, :, :) - v;
 EMSstatsSTD(3, :, :) = EMSstats(3, :, :) - s;
@@ -120,5 +122,5 @@ resTable(:, 6) = log(resTable(:, 6));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-% save('2dim5Feb2021.mat')
+save('2dim16Feb2021_epsilon.mat')
 
