@@ -35,7 +35,8 @@ p_circle = sum(sum(fSample - mu(1, 1), 2).^2 <= r)/10^6;
 % number of iterations
 Niter = 30;
 % number of bins/particles
-Nbins = [10 50 100];
+Nparticles = [10^2 10^3 10^4];
+Nbins = ceil(Nparticles.^(1/p));
 % scale for SMC smoothing
 epsilon = 1e-03;
 
@@ -51,8 +52,6 @@ SMCstats = zeros(6, length(Nbins), Nrep);
 % DKDEstats = zeros(5, length(Nbins), Nrep);
 
 parfor index=1:length(Nbins)
-    % number of particles
-    Nparticles = Nbins(index)^p;
     % discretisation grid for EMS
     Ndarrays = cell(1, p);
     [Ndarrays{:}] = ndgrid(1/(2*Nbins(index)):1/Nbins(index):1); 
@@ -71,7 +70,7 @@ parfor index=1:length(Nbins)
         hSample = random(gmH, 10^5);
         % initial distribution
         f0 = rand(Nbins(index)^p, 1);
-        x0 = rand(Nparticles, p);
+        x0 = rand(Nparticles(index), p);
         % EMS
         tstart = tic;
         EMSres = ems_p(hDisc, p, eval, Niter, epsilon, f0, sigmaG);
@@ -79,7 +78,7 @@ parfor index=1:length(Nbins)
         
         % SMC
         tstart = tic;
-        [x, W] = smc_p_dim_gaussian_mixture(Nparticles, Niter, epsilon, x0, hSample, sigmaG);
+        [x, W] = smc_p_dim_gaussian_mixture(Nparticles(index), Niter, epsilon, x0, hSample, sigmaG);
         SMCtime(j, index) = toc(tstart);
         
         % moments & probability
@@ -98,9 +97,9 @@ parfor index=1:length(Nbins)
             kHat(2, i) = sum(EMSres.*(eval(:, i) - mHat(2, i)).^4)/(sum(EMSres)*vHat(2, i)^2);
         end
         pEMSquadrant = sum(EMSres(lq))/sum(EMSres);
-        pSMCquadrant = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles;
+        pSMCquadrant = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles(index);
         pEMScircle = sum(EMSres(c))/sum(EMSres);
-        pSMCcircle = sum(sum(x - mu(1, 1), 2).^2 <= r)/Nparticles;
+        pSMCcircle = sum(sum(x - mu(1, 1), 2).^2 <= r)/Nparticles(index);
         EMSstats(:, index, j) = [mean(mHat(2, :)) mean(vHat(2, :)) mean(sHat(2, :)) mean(kHat(2, :)) pEMSquadrant pEMScircle];
         SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) mean(sHat(1, :)) mean(kHat(1, :)) pSMCquadrant pSMCcircle];
     end
