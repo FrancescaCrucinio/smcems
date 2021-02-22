@@ -64,7 +64,7 @@ parfor index=1:length(Nbins)
     % indices in lower quadrant
     lq = logical(prod((eval <= 0.5) & (eval >= 0), 2));
     % indices in circle
-    c = logical(sum(eval - mu(1, 1), 2).^2 <= r);
+    c = logical(sum((eval - mu(1, 1)).^2, 2) <= r);
     for j=1:Nrep
         % sample from h
         hSample = random(gmH, 10^5);
@@ -99,7 +99,7 @@ parfor index=1:length(Nbins)
         pEMSquadrant = sum(EMSres(lq))/sum(EMSres);
         pSMCquadrant = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles(index);
         pEMScircle = sum(EMSres(c))/sum(EMSres);
-        pSMCcircle = sum(sum(x - mu(1, 1), 2).^2 <= r)/Nparticles(index);
+        pSMCcircle = sum(sum((x - mu(1, 1)).^2, 2) <= r)/Nparticles(index);
         EMSstats(:, index, j) = [mean(mHat(2, :)) mean(vHat(2, :)) mean(sHat(2, :)) mean(kHat(2, :)) pEMSquadrant pEMScircle];
         SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) mean(sHat(1, :)) mean(kHat(1, :)) pSMCquadrant pSMCcircle];
     end
@@ -130,5 +130,5 @@ resTable(:, 7) = log(resTable(:, 7));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('2dim18Feb2021.mat')
+save('2dim22Feb2021.mat')
 
