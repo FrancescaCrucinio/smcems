@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 5;
+p = 3;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.7*ones(1, p)];
 variance = [0.07^2; 0.1^2];
@@ -27,7 +27,7 @@ k = (fourth_moment - 4*third_moment.*m + 6*second_moment.*m.^2 - 3*m.^4)./v.^2;
 p_quadrant = ((normcdf(0.5, 0.3, 0.07)-normcdf(0, 0.3, 0.07)) + 2*(normcdf(0.5, 0.7, 0.1)-normcdf(0, 0.7, 0.1)))/3;
 p_quadrant = p_quadrant^p;
 % probability of circle of radius r around the mode [0.3]^p
-r = 0.3;
+r = 0.15;
 % sample from f
 fSample = random(gmF, 10^6);
 p_circle = sum(sum(fSample - mu(1, 1), 2).^2 <= r)/10^6;
@@ -41,7 +41,7 @@ Nbins = ceil(Nparticles.^(1/p));
 epsilon = 1e-03;
 
 % number of replications
-Nrep = 2;
+Nrep = 100;
 % execution times
 EMStime = zeros(Nrep, length(Nbins));
 SMCtime = zeros(Nrep, length(Nbins));
@@ -130,5 +130,5 @@ resTable(:, 7) = log(resTable(:, 7));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('2dim22Feb2021.mat')
+save('3dim24Feb2021.mat')
 
