@@ -50,10 +50,12 @@ parfor i=1:length(M)
     runtimeExactRep = zeros(1, Nrep);
     runtimeApproximatedRep = zeros(1, Nrep);
     for k=1:Nrep
+        % sample from h
+        y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
         % Exact
         tstartExact = tic;
         [xExact, WExact] = smc_AT_exact_potential(N, Niter, epsilon,...
-            exactVarianceH, x0, M(i));
+            exactVarianceH, x0, y, M(i));
         runtimeExactRep(k) = toc(tstartExact);
         bwExact = sqrt(epsilon^2 + optimal_bandwidthESS(xExact(Niter, :), WExact(Niter, :))^2);
         [KDEyExact, KDExExact] = ksdensity(xExact(Niter, :), 'weight', WExact(Niter, :), ...
@@ -62,7 +64,7 @@ parfor i=1:length(M)
         % Approximated
         tstartApproximated = tic;
         [xApproximated, WApproximated] = smc_AT_approximated_potential(N, Niter, epsilon,...
-            x0, M(i));
+            x0, y, M(i));
         runtimeApproximatedRep(k) = toc(tstartApproximated);
         bwApproximated = sqrt(epsilon^2 + ...
             optimal_bandwidthESS(xApproximated(Niter, :), WApproximated(Niter, :))^2);
