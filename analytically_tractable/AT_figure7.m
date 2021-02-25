@@ -55,7 +55,7 @@ parfor i=1:Nrep
      % M=10
     tstart10E = tic;
     [xExact10, WExact10] = smc_AT_exact_potential(N, Niter, epsilon,...
-        exactVarianceHK, x0, 10);
+        exactVarianceHK, x0, y, 10);
     runtimeExact10(i) = toc(tstart10E);
     bwE10 = sqrt(epsilon^2 + ...
         optimal_bandwidthESS(xExact10(Niter, :), WExact10(Niter, :))^2);

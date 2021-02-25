@@ -209,3 +209,4 @@ resTable(:, 6) = log(resTable(:, 6));
 % write table
 dlmwrite('EM_EMS_IB_SMC_Table',resTable,'delimiter', '&',...
     'newline', 'pc')
+save('mixture_table25Feb2021')
