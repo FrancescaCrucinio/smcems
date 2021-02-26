@@ -37,14 +37,14 @@ function[xNew, W] = smc_p_dim_gaussian_mixture(N, Niter, epsilon, x0, hSample, s
         y = hSample(yIndex, :);
         hN = zeros(size(y, 1),1);
         for j=1:size(y, 1)
-            hN(j) = sum(W .* mvnpdf(xNew, y(j, :), sigmaG^2*eye(p)));
+            hN(j) = mean(W .* mvnpdf(xNew, y(j, :), sigmaG^2*eye(p)));
         end
 
         % update weights
         for i=1:N
             g = mvnpdf(xNew(i, :), y, sigmaG^2*eye(p));
             % potential at time n
-            potential = sum(g ./ hN);
+            potential = mean(g ./ hN);
             % update weight
             W(i) = W(i) * potential;
         end

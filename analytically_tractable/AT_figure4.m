@@ -58,7 +58,7 @@ EMres = em(gDisc, hDisc, Niter, f0EM);
 % EMS
 EMSres = ems(gDisc, hDisc, Niter, Kmatrix, f0EM);
 % SMC
-y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
+y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^4, 1);
 M = min(Nparticles, length(y));
 [x, W] = smc_AT_exact_potential(Nparticles, Niter, epsilon,...
     exactVarianceH, f0SMC, y, M);
