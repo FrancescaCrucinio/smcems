@@ -37,8 +37,10 @@ DKDEcvstats = zeros(Nrep, length(N));
 
 parfor index=1:length(N)
     for k=1:Nrep
-        % sample from h
-        y = Ysample_gaussian_mixture(N(index));
+        % samples from h(y) for SMC (fixed size) and DKDE (size increasing
+        % with N)
+        ySMC = Ysample_gaussian_mixture(10^3);
+        yDKDE = Ysample_gaussian_mixture(N(index));
         % bin centers
         fBin = 1/(2*N(index)):1/N(index):1;
         dx = fBin(2) - fBin(1);
@@ -57,7 +59,7 @@ parfor index=1:length(N)
         % SMC
         tstart = tic;
         [x, W] = smc_gaussian_mixture(N(index), Niter, epsilon,...
-            f0SMC, y);
+            f0SMC, ySMC);
         SMCtime(k, index) = toc(tstart);
         % KDE
     	% bandwidth
@@ -77,15 +79,15 @@ parfor index=1:length(N)
         % DKDE PI
         % PI bandwidth of Delaigle and Gijbels
         tstart = tic;
-        hPI = PI_deconvUknownth4(y, 'norm', varG, sigG);
-        fdecPI = fdecUknown(fBin, y, hPI, 'norm', sigG, dx);
+        hPI = PI_deconvUknownth4(yDKDE, 'norm', varG, sigG);
+        fdecPI = fdecUknown(fBin, yDKDE, hPI, 'norm', sigG, dx);
         DKDEpitime(k, index) = toc(tstart);
         [~, ~, ~, DKDEpistats(k, index)] = diagnosticsF(f, fBin, fdecPI);
         % DKDE CV
         % CV bandwidth of Stefanski and Carroll
         tstart = tic;
-        hCV = CVdeconv(y, 'norm', sigG);
-        fdecCV = fdecUknown(fBin, y, hCV, 'norm', sigG, dx);
+        hCV = CVdeconv(yDKDE, 'norm', sigG);
+        fdecCV = fdecUknown(fBin, yDKDE, hCV, 'norm', sigG, dx);
         DKDEcvtime(k, index) = toc(tstart);
         [~, ~, ~, DKDEcvstats(k, index)] = diagnosticsF(f, fBin, fdecCV);
     end

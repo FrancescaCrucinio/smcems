@@ -19,7 +19,8 @@ function[x, W] = smc_gaussian_mixture_trunc(N, Niter, epsilon, a, x0, hSample)
     
     % uniform weights at time n = 1
     W(1, :) = ones(1, N)/N;
-
+    % number of samples from h(y) to draw at each iteration
+    M = min(N, length(hSample));
     for n=2:Niter
         % ESS
         ESS=1/sum(W(n-1,:).^2);
@@ -38,17 +39,17 @@ function[x, W] = smc_gaussian_mixture_trunc(N, Niter, epsilon, a, x0, hSample)
         x(n,accept) = proposal(accept);
         
         % Compute h^N_{n}
-        y = randsample(hSample, N, true);
+       y = randsample(hSample, M, false);
         hN = zeros(length(y),1);
         for j=1:length(y)
-            hN(j) = sum(W(n,:) .* normpdf(y(j),x(n,:),0.045)./nc_gaussian_mixture(a, x(n,:), 0.045));
+            hN(j) = mean(W(n,:) .* normpdf(y(j),x(n,:),0.045)./nc_gaussian_mixture(a, x(n,:), 0.045));
         end
 
         % update weights
         for i=1:N
             g = normpdf(y,x(n,i),0.045)./nc_gaussian_mixture(a, x(n,i), 0.045);
             % potential at time n
-            potential = sum(g ./ hN);
+            potential = mean(g ./ hN);
             % update weight
             W(n,i) = W(n,i) * potential;
         end
