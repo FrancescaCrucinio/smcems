@@ -51,8 +51,10 @@ runtimeExactN = zeros(Nrep, 1);
 runtimeApproximatedN = zeros(Nrep, 1);
 
 parfor i=1:Nrep
-   % run SMC
-     % M=10
+    % sample from h
+     y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
+    % run SMC
+    % M=10
     tstart10E = tic;
     [xExact10, WExact10] = smc_AT_exact_potential(N, Niter, epsilon,...
         exactVarianceHK, x0, y, 10);
@@ -63,7 +65,7 @@ parfor i=1:Nrep
         'weight', WExact10(Niter, :), 'Bandwidth', bwE10, 'Function', 'pdf');
     tstart10A = tic;
     [x10, W10] = smc_AT_approximated_potential(N, Niter, epsilon, ...
-        x0, 10);
+        x0, y, 10);
     runtimeApproximated10(i) = toc(tstart10A);
     bwA10 = sqrt(epsilon^2 + ...
         optimal_bandwidthESS(x10(Niter, :), W10(Niter, :))^2);
@@ -72,7 +74,7 @@ parfor i=1:Nrep
     % M=100
     tstart100E = tic;
     [xExact100, WExact100] = smc_AT_exact_potential(N, Niter, epsilon,...
-        exactVarianceHK, x0, 100);
+        exactVarianceHK, x0, y, 100);
     runtimeExact100(i) = toc(tstart100E);
     bwE100 = sqrt(epsilon^2 + ...
         optimal_bandwidthESS(xExact100(Niter, :), WExact100(Niter, :))^2);
@@ -80,7 +82,7 @@ parfor i=1:Nrep
         'weight', WExact100(Niter, :), 'Bandwidth', bwE100, 'Function', 'pdf');
     tstart100A = tic;
     [x100, W100] = smc_AT_approximated_potential(N, Niter, epsilon, ...
-        x0, 100);
+        x0, y, 100);
     runtimeApproximated100(i) = toc(tstart100A);
     bwA100 = sqrt(epsilon^2 + ...
         optimal_bandwidthESS(x100(Niter, :), W100(Niter, :))^2);
@@ -89,7 +91,7 @@ parfor i=1:Nrep
     % M=N
     tstartNE = tic;
     [xExactN, WExactN] = smc_AT_exact_potential(N, Niter, epsilon,...
-        exactVarianceHK, x0, N);
+        exactVarianceHK, x0, y, N);
     runtimeExactN(i) = toc(tstartNE);
     bwEN = sqrt(epsilon^2 + ...
         optimal_bandwidthESS(xExactN(Niter, :), WExactN(Niter, :))^2);
@@ -97,7 +99,7 @@ parfor i=1:Nrep
         'weight', WExactN(Niter, :), 'Bandwidth', bwEN, 'Function', 'pdf');
     tstartNA = tic;
     [xN, WN] = smc_AT_approximated_potential(N, Niter, epsilon, ...
-        x0, N);
+        x0, y, N);
     runtimeApproximatedN(i) = toc(tstartNA);
     bwAN = sqrt(epsilon^2 + ...
         optimal_bandwidthESS(xN(Niter, :), WN(Niter, :))^2);
