@@ -39,7 +39,7 @@ function[x, W] = smc_gaussian_mixture_trunc(N, Niter, epsilon, a, x0, hSample)
         x(n,accept) = proposal(accept);
         
         % Compute h^N_{n}
-       y = randsample(hSample, M, false);
+        y = randsample(hSample, M, false);
         hN = zeros(length(y),1);
         for j=1:length(y)
             hN(j) = mean(W(n,:) .* normpdf(y(j),x(n,:),0.045)./nc_gaussian_mixture(a, x(n,:), 0.045));

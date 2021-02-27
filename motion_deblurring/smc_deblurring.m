@@ -54,7 +54,7 @@ function[x, y, W] = smc_deblurring(N, Niter, epsilon, I, sigma, b)
         % compute h^N_{n} for each y_j
         hN = zeros(N,1);
         for j=1:N
-             hN(j) = sum(W(n,:) .* normpdf(hSample(j,1) -y(n,: ), 0, sigma).* ...
+             hN(j) = mean(W(n,:) .* normpdf(hSample(j,1) -y(n,: ), 0, sigma).* ...
                  (x(n,:) - hSample(j,2) <= b/2 & x(n,:) - hSample(j,2) >= -b/2)./b);
         end
         
@@ -67,7 +67,7 @@ function[x, y, W] = smc_deblurring(N, Niter, epsilon, I, sigma, b)
             g = normpdf(hSample(:,1) - y(n,i), 0, sigma).* ...
                 (x(n,i) - hSample(:,2) <= b/2 & x(n,i) - hSample(:,2) >= -b/2)/b;
             % potential at time n
-            potential = sum(g ./ hN);
+            potential = mean(g ./ hN);
             % check for division by 0
             potential(isnan(potential)) = 0;
             % update weight

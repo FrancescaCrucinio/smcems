@@ -17,7 +17,8 @@ function[xNew, W] = smc_p_dim_gaussian_mixture(N, Niter, epsilon, x0, hSample, s
     p = size(x0, 2);
     % uniform weights at time n = 1
     W = ones(N, 1)/N;
-
+    % number of samples to draw from h(y)
+    M = min(N, size(hSample, 1));
     for n=2:Niter
         % ESS
         ESS=1/sum(W.^2);
@@ -33,18 +34,18 @@ function[xNew, W] = smc_p_dim_gaussian_mixture(N, Niter, epsilon, x0, hSample, s
         xNew = xNew + epsilon*randn(N, p);
         
         % Compute h^N_{n}
-        yIndex = randsample(1:size(hSample, 1), N, true);
+        yIndex = randsample(1:size(hSample, 1), M, false);
         y = hSample(yIndex, :);
         hN = zeros(size(y, 1),1);
         for j=1:size(y, 1)
-            hN(j) = sum(W .* mvnpdf(xNew, y(j, :), sigmaG^2*eye(p)));
+            hN(j) = mean(W .* mvnpdf(xNew, y(j, :), sigmaG^2*eye(p)));
         end
 
         % update weights
         for i=1:N
             g = mvnpdf(xNew(i, :), y, sigmaG^2*eye(p));
             % potential at time n
-            potential = sum(g ./ hN);
+            potential = mean(g ./ hN);
             % update weight
             W(i) = W(i) * potential;
         end

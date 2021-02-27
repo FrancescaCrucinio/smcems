@@ -18,7 +18,6 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
     
     % sample from the sinogram R
     pixels = length(phi);
-    hSample = pinky(xi, phi, R', 10^6);
     % 2D array to store the x-coordinate of the particles for each time step
     x1 = zeros(maxIter, N);
     % 2D array to store the y-coordinate of the particles for each time step
@@ -58,6 +57,7 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
         
     'Start SMC'
     for n=2:maxIter
+        y = pinky(xi, phi, R', N);
         hatHOld = hatHNew;
         % ESS
         ESS=1/sum(W(n-1,:).^2);
@@ -79,11 +79,9 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
         x2(n,:) = x2(n,:) + epsilon * randn(1,N);
         
         % Compute h^N_{n} one for each sample from R
-        yIndex = randsample(1:length(hSample), N, true);
-        y = hSample(yIndex, :);
         hN = zeros(N,1);
         for j=1:N
-             hN(j) = sum(W(n,:) .*  normpdf(x1(n-1,:)*cos(y(j,2)) + ...
+             hN(j) = mean(W(n,:) .*  normpdf(x1(n-1,:)*cos(y(j,2)) + ...
                  x2(n-1,:)*sin(y(j,2)) - y(j,1), 0, sigma));
         end
         
@@ -92,7 +90,7 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
             g = normpdf(x1(n,i)*cos(y(:,2)) + ...
                       x2(n,i)*sin(y(:,2)) - y(:,1), 0, sigma);
             % potential at time n
-            potential = sum(g./ hN);
+            potential = mean(g./ hN);
             % update weights
             W(n,i) = W(n,i) .* potential;
         end

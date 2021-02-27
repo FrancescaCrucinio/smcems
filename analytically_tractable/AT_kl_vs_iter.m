@@ -71,7 +71,7 @@ for i=1:size(f0EM, 1)
     % EMS
     EMSres = ems(gDisc, hDisc, Niter, Kmatrix, f0EM(i, :));
     fEMS(i, :) = EMSres(Niter, :);
-    y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
+    y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^4, 1);
     M = min(Nparticles, length(y));
     % SMC
     [x, W] = smc_AT_approximated_potential(Nparticles, Niter, epsilon,...
