@@ -24,9 +24,10 @@ function[x, W] = ...
     W(1, :) = ones(1, N)/N;
     
     for n=2:Niter
-       % get samples from h(y)
+        % get samples from h(y)
         y = randsample(hSample, M, false);
-         % ESS
+        
+        % ESS
         ESS=1/sum(W(n-1,:).^2);
         %%%%%% RESAMPLING
         if(ESS < N/2)

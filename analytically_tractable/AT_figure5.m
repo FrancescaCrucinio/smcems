@@ -101,7 +101,7 @@ parfor i=1:length(epsilon)
     divSMCrep = zeros(1, Nrep);
     miseHSMCrep = zeros(1, Nrep);
     for k=1:Nrep
-        y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
+        y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^4, 1);
         M = min(Nparticles, length(y));
         [x, W] = smc_AT_exact_potential(Nparticles, Niter, ...
             epsilon(i), exactVarianceH, f0SMC, y, M);
@@ -149,3 +149,4 @@ hold on
 plot(epsilon(2:end), abs(divSMC(2:end)), ':b', 'LineWidth', 3)
 title('KL')
 pbaspect([1.5 1 1])
+save('figure5_26Feb2021.mat')

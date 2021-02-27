@@ -20,7 +20,7 @@ Niter = 100;
 % number of particles
 N = 1000;
 % smoothing scale
-epsilon = 1e-03;
+epsilon = 1e-02;
 % initial variance of approximation of f
 sigmaF1 = rand(1);
 % coordinate at which KDE is evaluated
@@ -52,7 +52,7 @@ runtimeApproximatedN = zeros(Nrep, 1);
 
 parfor i=1:Nrep
     % sample from h
-     y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
+    y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^4, 1);
     % run SMC
     % M=10
     tstart10E = tic;

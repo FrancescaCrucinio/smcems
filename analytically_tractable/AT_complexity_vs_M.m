@@ -18,7 +18,7 @@ Niter = 100;
 % number of particles
 N = 1000;
 % scale
-epsilon = 10^(-3/2);
+epsilon = 1e-02;
 % initial variance of approximation of f
 sigmaF1 = rand(1);
 % grid on support of f
@@ -51,7 +51,7 @@ parfor i=1:length(M)
     runtimeApproximatedRep = zeros(1, Nrep);
     for k=1:Nrep
         % sample from h
-        y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^3, 1);
+        y = 0.5 + sqrt(0.043^2 + 0.045^2) * randn(10^4, 1);
         % Exact
         tstartExact = tic;
         [xExact, WExact] = smc_AT_exact_potential(N, Niter, epsilon,...
