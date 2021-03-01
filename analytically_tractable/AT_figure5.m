@@ -149,4 +149,3 @@ hold on
 plot(epsilon(2:end), abs(divSMC(2:end)), ':b', 'LineWidth', 3)
 title('KL')
 pbaspect([1.5 1 1])
-save('figure5_26Feb2021.mat')

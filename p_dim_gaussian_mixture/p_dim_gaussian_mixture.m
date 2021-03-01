@@ -4,7 +4,7 @@
 rng('default');
 
 % number of dimensions
-p = 3;
+p = 4;
 % build mixture of Gaussians
 mu = [0.3*ones(1, p); 0.7*ones(1, p)];
 variance = [0.07^2; 0.1^2];
@@ -130,5 +130,5 @@ resTable(:, 7) = log(resTable(:, 7));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('3dim24Feb2021.mat')
+save('4dim1Mar2021.mat')
 
