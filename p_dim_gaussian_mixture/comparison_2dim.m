@@ -30,7 +30,7 @@ fDisc = reshape(fDisc, [100, 100]);
 % number of iterations
 Niter = 30;
 % number of bins/particles
-Nbins = 10;
+Nbins = 100;
 Nparticles = Nbins^p;
 % smoothing parameter
 epsilon = 1e-03;
