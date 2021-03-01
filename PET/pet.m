@@ -66,7 +66,7 @@ for n=1:Npic
     title(['Iteration ' num2str(showIter(n))],...
        'interpreter', 'latex', 'FontSize', 10);
     hold off;
-    filename = sprintf('%s%d', 'pet', n);
+    % filename = sprintf('%s%d', 'pet', n);
     % MISE
     mse(n) = immse(P, KDEn);
     % relative error
@@ -78,6 +78,7 @@ for n=1:Npic
     imshow(error, [])
     colormap(gca,hot);
     pbaspect([1 1 1])
+    % filename = sprintf('%s%d', 'pet_relative_error', n);
     title(['Iteration ' num2str(showIter(n))],...
        'interpreter', 'latex', 'FontSize', 10);
 end
