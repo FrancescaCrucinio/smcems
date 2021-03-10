@@ -130,5 +130,5 @@ resTable(:, 7) = log(resTable(:, 7));
 % write table
 dlmwrite('p_dim',resTable,'delimiter', '&',...
     'newline', 'pc')
-save('5dim1Mar2021.mat')
+%save('5dim1Mar2021.mat')
 
