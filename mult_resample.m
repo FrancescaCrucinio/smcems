@@ -11,7 +11,7 @@ W = W(:);
 % vector to store number of offsprings
 indices = zeros(N, 1);
 
-% start inverse transfor method
+% inverse transfor method
 s = W(1);
 u = sort(rand(N, 1));
 j = 1;

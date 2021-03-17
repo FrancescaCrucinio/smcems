@@ -4,6 +4,7 @@
 % 2 - variance
 % 3 - Mean Integrated Squared Error for f
 % 4 - Kullback Leibler divergence
+% 5 - Mean Squared Error at KDEx
 % INPUTS
 % 'f' true f (function handle)
 % 'h' true h (function handle)
