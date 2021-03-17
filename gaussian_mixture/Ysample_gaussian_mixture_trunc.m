@@ -1,9 +1,9 @@
 % Sample y from the gaussian mixture model truncated t [0.5-a, 0.5+a]
 % OUTPUTS
-% 1 - sample from h
+% 1 - sample from truncated h
 % INPUTS
 % 'M' number of samples 
-% 'a' width of interval
+% 'a' width of interval on which h is truncated
 
 function [y] = Ysample_gaussian_mixture_trunc(M, a)
 % Mixture

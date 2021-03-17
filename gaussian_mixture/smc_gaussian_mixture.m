@@ -6,7 +6,7 @@
 % 'N' number of particles
 % 'Niter' number of time steps
 % 'epsilon' standard deviation for Gaussian smoothing kernel
-% 'x0' (optional) user selected initial distribution.
+% 'x0' (optional) initial distribution.
 % Default = Uniform on [0, 1]
 % 'hSample' (optional) sample from h
 

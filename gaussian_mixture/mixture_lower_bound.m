@@ -74,4 +74,3 @@ legend('with LB', 'no LB', ['N = ' num2str(Nparticles(1))], ['N = ' num2str(Npar
     'interpreter', 'latex', 'FontSize', ...
     10, 'Location', 'eastoutside');
 pbaspect([1.5 1 1])
-% printEps(gcf, 'mixture_lower_bound.eps')

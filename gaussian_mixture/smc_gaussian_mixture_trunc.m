@@ -7,7 +7,7 @@
 % 'Niter' number of time steps
 % 'epsilon' standard deviation for Gaussian smoothing kernel
 % 'a' truncation interval
-% 'x0' user selected initial distribution.
+% 'x0' initial distribution.
 % 'hSample' sample from h
 
 function[x, W] = smc_gaussian_mixture_trunc(N, Niter, epsilon, a, x0, hSample)
