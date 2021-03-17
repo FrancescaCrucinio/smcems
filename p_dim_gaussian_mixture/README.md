@@ -1,9 +1,5 @@
-# Gaussian Mixture Example
+# Gaussian Mixture Example in Higher Dimension
 
-To reproduce Figure 1 run `mixture_mise_vs_runtime.m`.
+`p_dim_gaussian_mixture.m` computes the entries of Table 2 for a given dimension p.
 
-To reproduce Table 2 run `mixture_table.m`.
-
-To reproduce Figure 11 run `mixture_lower_bound.m`.
-
-`nc_gaussian_mixture.m` computes the normalising constant for the truncated density in Appendix G.
+Figure 12 is obtained by setting p=2 and the number of replications to 1.

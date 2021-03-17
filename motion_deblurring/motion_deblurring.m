@@ -96,4 +96,3 @@ norm(cdfI - cdflambda, 1)
 
 % ESS
 1./sum(W.^2, 2)
-% 3.7519e+03

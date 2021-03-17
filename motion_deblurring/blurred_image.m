@@ -12,7 +12,7 @@ Imagef = im2double(Imagef(:,:,1));
 % dimension of image
 pixels = size(Imagef);
 % normalize velocity
-b = b/300;
+b = b/pixels(1);
 % create empty image
 Imageh = zeros(pixels);
 % set coordinate system over image

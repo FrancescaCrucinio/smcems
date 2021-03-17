@@ -58,7 +58,7 @@ function[x, y, W] = smc_deblurring(N, Niter, epsilon, I, sigma, b)
                  (x(n,:) - hSample(j,2) <= b/2 & x(n,:) - hSample(j,2) >= -b/2)./b);
         end
         
-        % apply Markov kerne
+        % apply Markov kernel
         x(n, :) = x(n,:) + epsilon * randn(1,N);
         y(n, :) = y(n,:) + epsilon * randn(1,N);
 
