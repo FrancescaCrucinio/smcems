@@ -12,9 +12,9 @@
 % 'R' Radon transform
 % 'sigma' standard deviation for Normal describing alignment
 % 'tolerance' tolerance for stopping rule
-% 'm' width of moving average
+% 'm' width of moving variance
 
-function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, m)    
+function[x1, x2, W, iter_stop, moving_var, L2norm] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma, m)    
     
     % sample from the sinogram R
     pixels = length(phi);
@@ -36,6 +36,7 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
     evalX1 = linspace(-0.75 + 1/pixels, 0.75 - 1/pixels, pixels);
     % y is in [-0.75, 0.75]
     evalX2 = linspace(-0.75 + 1/pixels, 0.75 - 1/pixels, pixels);
+    dx = evalX1(2)-evalX1(1);
     % build grid with this coordinates
     RevalX = repmat(evalX1, pixels, 1);
     eval =[RevalX(:) repmat(evalX2, 1, pixels)'];
@@ -48,13 +49,16 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
     KDE = ksdensity([x1(1, :)' x2(1, :)'], eval, 'weight', ...
         W(1, :), 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
     % variance
-    PETvar = zeros(1, maxIter);
-    PETvar(1) = var(KDE, 1);
+    zeta = zeros(1, maxIter);
+    zeta(1) = sum(KDE.^2)*dx^2;
     % reconstruction of h
     hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
     % stopping rule
-    iter_stop = 100;
-        
+    iter_stop = maxIter;
+    
+    L2norm = zeros(1, maxIter);
+    moving_var = zeros(1, maxIter);
+    L2norm(1) = delta1*delta2*sum((hatHNew).^2, 'all');
     'Start SMC'
     for n=2:maxIter
         y = pinky(xi, phi, R', N);
@@ -103,17 +107,19 @@ function[x1, x2, W, iter_stop] = smc_pet(N, maxIter, epsilon, phi, xi, R, sigma,
         KDE = ksdensity([x1(n, :)' x2(n, :)'], eval, 'weight', ...
             W(n, :), 'Bandwidth', [bw1 bw2], 'Function', 'pdf');
         % variance
-        PETvar(n) = var(KDE, 1);
+        % PETvar(n) = sum(KDE.^2)*dx^2;
+        
+        zeta(n) = (bw1^2 - sum(W(n, :).*x1(n, :))^2) + (bw2^2 - sum(W(n, :).*x2(n, :))^2);
         % L2norm
         KDE = reshape(KDE, [pixels, pixels]);
         KDE = flipud(mat2gray(KDE));
         KDE = KDE(:);
         hatHNew = Hreconstruction_pet(phi, xi, sigma, eval, KDE);
+        L2norm(n) = delta1*delta2*sum((hatHNew - hatHOld).^2, 'all');
         % stopping rule
         if(n>=m)
-            L2norm = delta1*delta2*sum((hatHNew - hatHOld).^2, 'all');
-            moving_var = var(PETvar((n-m+1):n));
-            if(L2norm<=moving_var)
+            moving_var(n) = var(zeta((n-m+1):n));
+            if(L2norm(n)<=moving_var(n))
                 iter_stop = n;
                 ['Stop at iteration ' num2str(n)]
                 % uncomment to exit algorithm as soon as tolerance reached

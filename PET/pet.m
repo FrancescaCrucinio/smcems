@@ -32,7 +32,7 @@ epsilon = 1e-03;
 sigma = 0.02;
 % run SMC
 tstart = tic;
-[x, y, W, iter_stop] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 15); 
+[x, y, W, iter_stop, mv, L2] = smc_pet(N, Niter, epsilon, phi, xi, noisyR, sigma, 15); 
 toc(tstart);
 % set coordinate system over image
 % x is in [-0.8, 0.8]
@@ -85,3 +85,7 @@ mse
 
 % ESS
 1./sum(W(iter_stop, :).^2, 2)
+
+% entropy
+arg = KDEn .* log(KDEn);
+ent = -mean(arg(isfinite(arg)), 'all');
