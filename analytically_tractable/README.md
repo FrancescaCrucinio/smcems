@@ -10,4 +10,4 @@ To reproduce Figure 7 run `AT_figure7.m`.
 
 To reproduce Figure 8 run `AT_kl_vs_iter.m`.
 
-`AT_exact_variance_recursion.m` gives the variance for the exact potentials in eq (31).
+`AT_exact_variance_recursion.m` gives the variance for the exact potentials in eq (29)

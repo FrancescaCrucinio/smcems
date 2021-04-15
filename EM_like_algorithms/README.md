@@ -1,13 +1,9 @@
-# SMC-EMS
+# Expectation Maximization algorithms
 
-A particle method for Fredholm Equations of the First Kind
+`em.m` is the 1D EM algorithm for Poisson counts
 
-This repository provides MATLAB code to reproduce the examples of "A Particle Method for Solving Fredholm Equations of the First Kind" by Francesca R. Crucinio, Arnaud Doucet and Adam M. Johansen [here]().
+`ems.m` is the 1D EMS algorithm for Poisson counts
 
-The folder `gaussian_mixture` contains the scripts to reproduce the example in Section 4.1.
+`smoothingSilverman.m` computes the 3-points smoothing matrix in Section 4.1
 
-The folder `motion_deblurring` contains the scripts to reproduce the example in Section 4.2.
-
-The folder `pet` contains the scripts to reproduce the example in Section 4.3 and Appendix F.
-
-The folder `analytically_tractable` contains the scripts to reproduce the example in Appendix E.1.
+`smoothingMatrix.m` discretizes a given smoothing kernel
