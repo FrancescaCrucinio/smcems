@@ -47,7 +47,7 @@ EMSstats = zeros(4, length(Nbins), Nrep);
 SMCstats = zeros(4, length(Nbins), Nrep);
 % DKDEstats = zeros(5, length(Nbins), Nrep);
 
-parfor index=1:length(Nbins)
+parfor index=1:length(Nparticles)
     % discretisation grid for EMS
     Ndarrays = cell(1, p);
     [Ndarrays{:}] = ndgrid(1/(2*Nbins(index)):1/Nbins(index):1); 
@@ -87,9 +87,11 @@ parfor index=1:length(Nbins)
             vHat(2, i) = sum(EMSres.*eval(:, i).^2)/sum(EMSres) - mHat(2, i)^2;
         end
         pEMSquadrant = sum(EMSres(lq))/sum(EMSres);
-        pSMCquadrant = sum(prod((x <= 0.5 & x>= 0), 2))/Nparticles(index);
+        indices_q = logical(prod((x <= 0.5 & x>= 0), 2));
+        pSMCquadrant = sum(W(indices_q));
         pEMScircle = sum(EMSres(c))/sum(EMSres);
-        pSMCcircle = sum(sum((x - mu(1, 1)).^2, 2) <= r)/Nparticles(index);
+        indices_c = (sum((x - mu(1, 1)).^2, 2) <= r);
+        pSMCcircle = sum(W(indices_c));
         EMSstats(:, index, j) = [mean(mHat(2, :)) mean(vHat(2, :)) pEMSquadrant pEMScircle];
         SMCstats(:, index, j) = [mean(mHat(1, :)) mean(vHat(1, :)) pSMCquadrant pSMCcircle];
     end
