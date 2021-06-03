@@ -130,4 +130,6 @@ legend(h, 'SMC', 'EMS', 'DKDE-pi', 'DKDE-cv', ['N = ' num2str(N(1))], ['N = ' nu
     ['N = ' num2str(N(3))], ['N = ' num2str(N(4))], ['N = ' num2str(N(5))], ...
     'interpreter', 'latex', 'FontSize', ...
     10, 'Location', 'southwest');
+xlabel('Runtime (s)', 'interpreter', 'latex', 'FontSize', 15)
+ylabel('ISE', 'interpreter', 'latex', 'FontSize', 15)
 pbaspect([1.5 1 1])
